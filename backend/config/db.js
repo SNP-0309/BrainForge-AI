@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
+const seedAchievements = require('./seed');
 
 const connectDB = async () => {
   try {
@@ -10,6 +11,9 @@ const connectDB = async () => {
 
     const conn = await mongoose.connect(mongoUri);
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
+    
+    // Seed default achievements
+    await seedAchievements();
   } catch (error) {
     logger.error(`MongoDB Connection Error: ${error.message}`);
     process.exit(1);
