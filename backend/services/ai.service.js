@@ -303,9 +303,9 @@ class GroqProvider extends BaseAIProvider {
       this.client = new Groq({ apiKey });
       logger.info('Groq AI Provider initialized.');
     }
-    this.fastModel = 'llama3-8b-8192';       // Fast responses
-    this.smartModel = 'llama3-70b-8192';      // Complex reasoning
-    this.longModel = 'mixtral-8x7b-32768';    // Long context (resume, notes)
+    this.fastModel = 'llama-3.1-8b-instant';       // Fast responses
+    this.smartModel = 'llama-3.3-70b-versatile';    // Complex reasoning
+    this.longModel = 'mixtral-8x7b-32768';          // Long context (resume, notes)
   }
 
   async _complete(messages, model = null, jsonMode = false) {
