@@ -79,18 +79,7 @@ export default function AiTutorPage() {
       };
       setMessages(prev => [...prev, newAssistantMsg]);
       
-      // Auto complete daily mission task if they are chatting with AI Tutor
-      try {
-        const todayMission = user.profile.dailyMission;
-        if (todayMission && todayMission.tasks) {
-          const task = todayMission.tasks.find(t => t.type === 'tutor');
-          if (task && !task.completed) {
-            await api.put(`/missions/task/${task.id}/complete`);
-          }
-        }
-      } catch (e) {
-        console.warn('Failed to sync daily mission task status:', e);
-      }
+      // Message successfully sent
 
     } catch (err) {
       console.error('Failed to send tutor message:', err);

@@ -75,10 +75,7 @@ export default function GamesHubPage() {
         </div>
         <div className="flex items-center gap-3 border-2 border-black bg-white p-1 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
           <span className="text-xs font-mono font-black px-2 uppercase text-black">
-            YOUR STATS:
-          </span>
-          <span className="text-xs font-mono font-black bg-brutal-purple border border-black px-2 py-0.5 rounded shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
-            Lv. {user?.profile?.level || 1}
+            YOUR WALLET:
           </span>
           <span className="text-xs font-mono font-black bg-brutal-yellow border border-black px-2 py-0.5 rounded shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
             {user?.profile?.coins || 0} Coins
@@ -260,14 +257,14 @@ export default function GamesHubPage() {
           {/* Rules / Rewards */}
           <Card bg="#E9D5FF" className="p-5 text-black space-y-4 border-3 border-black">
             <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-yellow-500 shrink-0" /> Rewards & XP Rules
+              <Trophy className="w-5 h-5 text-yellow-500 shrink-0" /> Coins & Badges
             </h3>
             
             <ul className="text-xs font-bold space-y-2.5 list-disc list-inside leading-relaxed text-black/85">
-              <li>Every correct answer grants <strong className="text-black">+15 XP</strong></li>
-              <li>A passing score (70% or more) earns you <strong className="text-black">+10 Coins</strong></li>
-              <li>Failing quizzes still yields <strong className="text-black">+2 Coins</strong> for participating!</li>
-              <li>Unlock custom badges and titles by completing specific learning milestones.</li>
+              <li>Test your concepts and earn coins for correct answers.</li>
+              <li>A passing score (70% or more) earns you <strong className="text-black">+10 Coins</strong>.</li>
+              <li>Participating in any quiz yields <strong className="text-black">+2 Coins</strong>.</li>
+              <li>Unlock custom profile badges by completing course milestones.</li>
             </ul>
           </Card>
 
