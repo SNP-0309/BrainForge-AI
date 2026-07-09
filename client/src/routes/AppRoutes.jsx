@@ -22,6 +22,7 @@ import LeaderboardPage from '../features/profile/pages/LeaderboardPage'
 import TeacherDashboardPage from '../features/teacher/pages/TeacherDashboardPage'
 import AdminDashboardPage from '../features/admin/pages/AdminDashboardPage'
 import NotFoundPage from '../components/pages/NotFoundPage'
+import LandingPage from '../components/pages/LandingPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuthStore()
@@ -46,12 +47,12 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
       {/* Protected App Routes */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/courses" element={<CourseCatalogPage />} />
         <Route path="/courses/recommended" element={<RecommendedCoursesPage />} />
