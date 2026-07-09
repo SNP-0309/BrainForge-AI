@@ -44,37 +44,82 @@ const REAL_QUESTIONS = {
     { questionText: 'Which method adds one or more elements to the end of an array?', options: ['push()', 'pop()', 'shift()', 'unshift()'], correctAnswerIndex: 0, explanation: 'push() appends elements to the end; unshift() prepends them; pop() removes the last; shift() removes the first.' },
     { questionText: 'What is the purpose of Promise.all()?', options: ['Runs multiple promises in parallel and resolves when all resolve', 'Runs promises sequentially', 'Resolves the fastest promise', 'Rejects all promises'], correctAnswerIndex: 0, explanation: 'Promise.all() accepts an iterable of promises and resolves when all input promises have resolved.' },
     { questionText: 'Which operator is used to compare both value and type in JavaScript?', options: ['===', '==', '=', '!='], correctAnswerIndex: 0, explanation: '=== is the strict equality operator, checking both value and type equivalence.' },
-    { questionText: 'What is the primary difference between var and let/const?', options: ['var is function-scoped; let/const are block-scoped', 'let is function-scoped; var is block-scoped', 'const is global-scoped only', 'var is mutable; let is immutable'], correctAnswerIndex: 0, explanation: 'var is scoped to the enclosing function, whereas let and const are block-scoped.' }
+    { questionText: 'What is the primary difference between var and let/const?', options: ['var is function-scoped; let/const are block-scoped', 'let is function-scoped; var is block-scoped', 'const is global-scoped only', 'var is mutable; let is immutable'], correctAnswerIndex: 0, explanation: 'var is scoped to the enclosing function, whereas let and const are block-scoped.' },
+    { questionText: 'What does NaN stand for in JavaScript?', options: ['Not a Number', 'Null and None', 'New Array Node', 'Next Assembly Name'], correctAnswerIndex: 0, explanation: 'NaN stands for Not a Number, representing a value which is not a valid number.' },
+    { questionText: 'Which keyword is used to declare a block-scoped constant?', options: ['const', 'let', 'var', 'constant'], correctAnswerIndex: 0, explanation: 'const creates a block-scoped read-only reference to a value.' },
+    { questionText: 'How do you serialize an object into a JSON string in JavaScript?', options: ['JSON.stringify()', 'JSON.parse()', 'JSON.toFormat()', 'JSON.serialize()'], correctAnswerIndex: 0, explanation: 'JSON.stringify() converts a JavaScript object or value to a JSON string.' },
+    { questionText: 'What is the correct way to empty an array named arr?', options: ['arr.length = 0', 'arr = []', 'arr.slice(0, 0)', 'arr.clear()'], correctAnswerIndex: 0, explanation: 'Setting length to 0 empties the array in-place, truncating all elements.' },
+    { questionText: 'Which array method creates a new array with all elements that pass a test?', options: ['filter()', 'map()', 'forEach()', 'reduce()'], correctAnswerIndex: 0, explanation: 'filter() creates a shallow copy of a portion of a given array, filtered down to just the elements that pass the test.' }
   ],
   python: [
     { questionText: 'How do you start a function definition in Python?', options: ['def', 'function', 'void', 'define'], correctAnswerIndex: 0, explanation: 'Python functions are declared using the def keyword followed by the function name.' },
     { questionText: 'Which Python data structure is mutable and defined with square brackets?', options: ['list', 'tuple', 'dict', 'set'], correctAnswerIndex: 0, explanation: 'Lists are mutable ordered sequences defined using []. Tuples are immutable and use ().' },
     { questionText: 'What is the output of bool([]) in Python?', options: ['False', 'True', 'None', 'Error'], correctAnswerIndex: 0, explanation: 'Empty collections (lists, tuples, dicts) evaluate to False in boolean contexts.' },
     { questionText: 'How do you handle exceptions in Python?', options: ['try...except', 'try...catch', 'try...handle', 'throw...catch'], correctAnswerIndex: 0, explanation: 'Python uses the try...except block to handle run-time exceptions.' },
-    { questionText: 'What does the __init__ method do in Python?', options: ['Initializes a new instance of a class', 'Destroys a class instance', 'Imports a module', 'Prints a message'], correctAnswerIndex: 0, explanation: 'The __init__ method is a constructor that initializes object properties when an instance is created.' }
+    { questionText: 'What does the __init__ method do in Python?', options: ['Initializes a new instance of a class', 'Destroys a class instance', 'Imports a module', 'Prints a message'], correctAnswerIndex: 0, explanation: 'The __init__ method is a constructor that initializes object properties when an instance is created.' },
+    { questionText: 'Which statement is used to import all names from a module math in Python?', options: ['from math import *', 'import math.*', 'load math', 'include math'], correctAnswerIndex: 0, explanation: 'The wildcard import from math import * imports all public names defined in math.' },
+    { questionText: 'How do you add an element to the end of a list in Python?', options: ['append()', 'add()', 'extend()', 'insert()'], correctAnswerIndex: 0, explanation: 'append() adds its argument as a single element to the end of a list.' },
+    { questionText: 'Which keyword is used to create a generator function in Python?', options: ['yield', 'return', 'gen', 'next'], correctAnswerIndex: 0, explanation: 'The yield statement suspends function execution and sends a value back to the caller.' },
+    { questionText: 'What is the correct way to get the length of a list named lst in Python?', options: ['len(lst)', 'lst.length()', 'lst.size()', 'count(lst)'], correctAnswerIndex: 0, explanation: 'The built-in len() function returns the number of items in a container.' },
+    { questionText: 'Which mutable data structure in Python stores key-value pairs?', options: ['dict', 'set', 'list', 'tuple'], correctAnswerIndex: 0, explanation: 'Dictionaries (dict) store mapping associations of keys to values.' },
+    { questionText: 'What is the result of 3 // 2 in Python?', options: ['1', '1.5', '2', '0'], correctAnswerIndex: 0, explanation: '// is the floor division operator, rounding down to the nearest integer.' },
+    { questionText: 'Which string method removes both leading and trailing whitespaces in Python?', options: ['strip()', 'trim()', 'clear()', 'clean()'], correctAnswerIndex: 0, explanation: 'strip() returns a copy of the string with leading and trailing characters (default whitespace) removed.' }
   ],
   react: [
     { questionText: 'Which Hook should you use to run side effects in a functional component?', options: ['useEffect', 'useState', 'useContext', 'useReducer'], correctAnswerIndex: 0, explanation: 'useEffect handles side effects like API requests, subscriptions, and DOM updates.' },
     { questionText: 'What is a key rule of React Hooks?', options: ['Only call Hooks at the top level', 'Only call Hooks inside loops', 'Only call Hooks in class components', 'Call Hooks conditionally'], correctAnswerIndex: 0, explanation: 'Hooks must not be called inside loops, conditions, or nested functions.' },
     { questionText: 'How do you prevent a component from re-rendering unless its props change?', options: ['React.memo()', 'useCallback()', 'useMemo()', 'useState()'], correctAnswerIndex: 0, explanation: 'React.memo is a higher-order component that memoizes the rendered output to prevent unnecessary updates.' },
     { questionText: 'What does useState return?', options: ['A state variable and a setter function', 'Just the state value', 'A dispatch function', 'A state object'], correctAnswerIndex: 0, explanation: 'useState returns a pair: the current state value and a function that updates it.' },
-    { questionText: 'Which hook is used to reference a DOM element directly?', options: ['useRef', 'useMemo', 'useImperativeHandle', 'useLayoutEffect'], correctAnswerIndex: 0, explanation: 'useRef creates a mutable object whose .current property references the passed DOM node.' }
+    { questionText: 'Which hook is used to reference a DOM element directly?', options: ['useRef', 'useMemo', 'useImperativeHandle', 'useLayoutEffect'], correctAnswerIndex: 0, explanation: 'useRef creates a mutable object whose .current property references the passed DOM node.' },
+    { questionText: 'What is the primary purpose of useMemo in React?', options: ['Memoize a computed value to prevent recalculation', 'Memoize a callback function', 'Declare a state variable', 'Trigger side effects'], correctAnswerIndex: 0, explanation: 'useMemo caches the result of a calculation between re-renders.' },
+    { questionText: 'What is the Virtual DOM in React?', options: ['A lightweight JavaScript representation of the real DOM', 'A browser plugin', 'A direct copy of HTML elements', 'A style sheet library'], correctAnswerIndex: 0, explanation: 'React keeps a lightweight representation of the UI in memory and syncs it with the real DOM.' },
+    { questionText: 'Which prop is required when rendering a list of items to help React identify changes?', options: ['key', 'id', 'index', 'name'], correctAnswerIndex: 0, explanation: 'React uses the key prop to track which items have changed, been added, or been removed.' },
+    { questionText: 'How do you declare a state variable in a functional React component?', options: ['const [value, setValue] = useState(initial)', 'let value = useState()', 'this.state = {}', 'React.createState()'], correctAnswerIndex: 0, explanation: 'The useState hook is the standard API to initialize and set state in functional components.' },
+    { questionText: 'Which hook is used to access context values directly?', options: ['useContext', 'useState', 'useReducer', 'useLayoutEffect'], correctAnswerIndex: 0, explanation: 'useContext accepts a context object and returns the current context value.' },
+    { questionText: 'What is the default port for local Vite dev servers in React projects?', options: ['5173', '3000', '8080', '5000'], correctAnswerIndex: 0, explanation: 'Vite launches its development server on port 5173 by default.' },
+    { questionText: 'Which React lifecycle method is replaced by returning a cleanup function in useEffect?', options: ['componentWillUnmount', 'componentDidMount', 'componentDidUpdate', 'shouldComponentUpdate'], correctAnswerIndex: 0, explanation: 'Returning a function from the useEffect callback handles cleanup tasks, similar to componentWillUnmount.' }
   ],
   git: [
     { questionText: 'Which command initializes a new local Git repository?', options: ['git init', 'git create', 'git start', 'git clone'], correctAnswerIndex: 0, explanation: 'git init creates an empty Git repository or reinitializes an existing one.' },
     { questionText: 'How do you save your changes to the staging area in Git?', options: ['git add', 'git commit', 'git save', 'git push'], correctAnswerIndex: 0, explanation: 'git add stages untracked or modified files; git commit permanently records them.' },
     { questionText: 'Which command shows the commit history of a repository?', options: ['git log', 'git status', 'git history', 'git show'], correctAnswerIndex: 0, explanation: 'git log lists commits in reverse chronological order.' },
-    { questionText: 'How do you download changes and merge them from a remote branch?', options: ['git pull', 'git fetch', 'git clone', 'git push'], correctAnswerIndex: 0, explanation: 'git pull fetches changes and immediately merges them into your current local branch.' }
+    { questionText: 'How do you download changes and merge them from a remote branch?', options: ['git pull', 'git fetch', 'git clone', 'git push'], correctAnswerIndex: 0, explanation: 'git pull fetches changes and immediately merges them into your current local branch.' },
+    { questionText: 'How do you view the status of tracked/untracked files in Git?', options: ['git status', 'git show', 'git log', 'git check'], correctAnswerIndex: 0, explanation: 'git status displays the state of the working directory and the staging area.' },
+    { questionText: 'Which command discards all uncommitted local modifications in Git?', options: ['git restore .', 'git clear', 'git clean', 'git delete'], correctAnswerIndex: 0, explanation: 'git restore . discards changes in the working directory for the current folder path.' },
+    { questionText: 'How do you temporarily save changes without committing them in Git?', options: ['git stash', 'git save', 'git pause', 'git hold'], correctAnswerIndex: 0, explanation: 'git stash shelves local modifications, reverting the working directory to match the HEAD commit.' },
+    { questionText: 'Which command merges branch feature into your current active branch?', options: ['git merge feature', 'git join feature', 'git push feature', 'git checkout feature'], correctAnswerIndex: 0, explanation: 'git merge incorporates changes from the named commit/branch into the current branch.' },
+    { questionText: 'How do you set your commit author name globally in Git?', options: ['git config --global user.name "Name"', 'git set name', 'git author set', 'git register name'], correctAnswerIndex: 0, explanation: 'git config is used to set configuration options globally with the --global flag.' },
+    { questionText: 'What is the default name of the first branch in modern Git repositories?', options: ['main', 'master', 'trunk', 'development'], correctAnswerIndex: 0, explanation: 'Modern repositories default to naming the main development branch "main".' },
+    { questionText: 'Which command shows who modified each line of a file?', options: ['git blame', 'git trace', 'git history', 'git inspect'], correctAnswerIndex: 0, explanation: 'git blame annotates each line in the given file with information from the revision which introduced the line.' },
+    { questionText: 'How do you download files from a remote repository for the first time?', options: ['git clone', 'git init', 'git download', 'git pull'], correctAnswerIndex: 0, explanation: 'git clone clones a repository into a newly created directory.' }
   ],
   sql: [
     { questionText: 'Which clause is used to filter rows in a SQL query?', options: ['WHERE', 'HAVING', 'GROUP BY', 'ORDER BY'], correctAnswerIndex: 0, explanation: 'WHERE filters records before grouping; HAVING filters records after grouping.' },
     { questionText: 'Which JOIN returns all matching records and all left table records?', options: ['LEFT JOIN', 'INNER JOIN', 'RIGHT JOIN', 'FULL JOIN'], correctAnswerIndex: 0, explanation: 'A LEFT JOIN returns all rows from the left table, with corresponding matching values from the right.' },
-    { questionText: 'What is the purpose of a PRIMARY KEY in a table?', options: ['Uniquely identifies each record in the table', 'Speeds up text searching', 'Links two tables together', 'Allows duplicate values'], correctAnswerIndex: 0, explanation: 'A Primary Key uniquely identifies rows, preventing duplicate entries and null values.' }
+    { questionText: 'What is the purpose of a PRIMARY KEY in a table?', options: ['Uniquely identifies each record in the table', 'Speeds up text searching', 'Links two tables together', 'Allows duplicate values'], correctAnswerIndex: 0, explanation: 'A Primary Key uniquely identifies rows, preventing duplicate entries and null values.' },
+    { questionText: 'Which SQL aggregate function returns the number of rows in a query?', options: ['COUNT()', 'SUM()', 'ROWS()', 'TOTAL()'], correctAnswerIndex: 0, explanation: 'COUNT() returns the total count of matched records.' },
+    { questionText: 'How do you sort query results in ascending order in SQL?', options: ['ORDER BY column ASC', 'SORT BY column', 'GROUP BY column', 'FILTER BY column'], correctAnswerIndex: 0, explanation: 'ORDER BY column ASC arranges the records in ascending order.' },
+    { questionText: 'Which database constraint ensures that all values in a column are different?', options: ['UNIQUE', 'NOT NULL', 'CHECK', 'DEFAULT'], correctAnswerIndex: 0, explanation: 'The UNIQUE constraint ensures that all values in a column are unique.' },
+    { questionText: 'How do you update existing data in a database table?', options: ['UPDATE', 'INSERT', 'SET', 'MODIFY'], correctAnswerIndex: 0, explanation: 'The UPDATE statement is used to modify existing records in a table.' },
+    { questionText: 'Which clause is used to filter group metrics in aggregate functions?', options: ['HAVING', 'WHERE', 'GROUP BY', 'FILTER'], correctAnswerIndex: 0, explanation: 'HAVING is used to filter groups summarized by GROUP BY clauses.' },
+    { questionText: 'What does ACID stand for in database transaction management?', options: ['Atomicity, Consistency, Isolation, Durability', 'Accuracy, Completeness, Integrity, Dependency', 'Access, Control, Indexing, Delivery', 'Automated, Compiled, Indexed, Distributed'], correctAnswerIndex: 0, explanation: 'ACID transactions guarantee validity even in the event of errors or power failures.' },
+    { questionText: 'Which command is used to remove a table schema and its contents entirely?', options: ['DROP TABLE', 'DELETE TABLE', 'TRUNCATE TABLE', 'REMOVE TABLE'], correctAnswerIndex: 0, explanation: 'DROP TABLE deletes the table definition and all row data permanently.' },
+    { questionText: 'Which constraint links one table primary key to another table?', options: ['FOREIGN KEY', 'PRIMARY KEY', 'LINK KEY', 'INDEX KEY'], correctAnswerIndex: 0, explanation: 'A FOREIGN KEY is a field in one table that uniquely identifies a row of another table.' },
+    { questionText: 'What does a database index optimize in relational tables?', options: ['Query search performance', 'Insert speed', 'Data consistency', 'Schema storage size'], correctAnswerIndex: 0, explanation: 'Indexes speed up select queries, but can slow down inserts and updates.' }
   ],
   dsa: [
     { questionText: 'What is the worst-case time complexity of searching in a Binary Search Tree (BST)?', options: ['O(N)', 'O(log N)', 'O(1)', 'O(N log N)'], correctAnswerIndex: 0, explanation: 'If the BST is skewed (unbalanced), searching degrades to O(N).' },
     { questionText: 'Which data structure operates on a Last-In-First-Out (LIFO) basis?', options: ['Stack', 'Queue', 'Linked List', 'Heap'], correctAnswerIndex: 0, explanation: 'Stacks are LIFO structures (elements pushed last are popped first).' },
-    { questionText: 'What is the average-case time complexity of Quick Sort?', options: ['O(N log N)', 'O(N^2)', 'O(N)', 'O(log N)'], correctAnswerIndex: 0, explanation: 'Quick Sort divides the input array in halves on average, leading to O(N log N) efficiency.' }
+    { questionText: 'What is the average-case time complexity of Quick Sort?', options: ['O(N log N)', 'O(N^2)', 'O(N)', 'O(log N)'], correctAnswerIndex: 0, explanation: 'Quick Sort divides the input array in halves on average, leading to O(N log N) efficiency.' },
+    { questionText: 'Which data structure operates on a First-In-First-Out (FIFO) basis?', options: ['Queue', 'Stack', 'Tree', 'Graph'], correctAnswerIndex: 0, explanation: 'Queues are FIFO structures (first element added is the first one processed).' },
+    { questionText: 'What is the time complexity to access an element in an array by index?', options: ['O(1)', 'O(log N)', 'O(N)', 'O(N log N)'], correctAnswerIndex: 0, explanation: 'Array indexing is direct offset arithmetic, completed in constant O(1) time.' },
+    { questionText: 'Which algorithm is used to find the shortest path in a weighted graph?', options: ['Dijkstra\'s Algorithm', 'Kruskal\'s Algorithm', 'Depth First Search', 'Binary Search'], correctAnswerIndex: 0, explanation: 'Dijkstra\'s algorithm computes the single-source shortest path tree on weighted graphs.' },
+    { questionText: 'What is the space complexity of a basic recursive Fibonacci function without memoization?', options: ['O(N)', 'O(1)', 'O(2^N)', 'O(N^2)'], correctAnswerIndex: 0, explanation: 'The recursion call stack depth reaches N, requiring O(N) space.' },
+    { questionText: 'Which sorting algorithm is stable and has worst-case O(N log N) time complexity?', options: ['Merge Sort', 'Quick Sort', 'Bubble Sort', 'Selection Sort'], correctAnswerIndex: 0, explanation: 'Merge Sort is stable and guarantees O(N log N) worst-case time complexity.' },
+    { questionText: 'Which structure utilizes a hash function to map keys to bucket indices?', options: ['Hash Map', 'Linked List', 'Trie', 'Heap'], correctAnswerIndex: 0, explanation: 'Hash maps index data using keys converted to array indices via hash functions.' },
+    { questionText: 'What is the height of a balanced binary search tree with N elements?', options: ['O(log N)', 'O(N)', 'O(1)', 'O(N log N)'], correctAnswerIndex: 0, explanation: 'A balanced BST maintains height proportional to the logarithm of the number of elements.' },
+    { questionText: 'Which data structure is ideal for implementing undo functionality?', options: ['Stack', 'Queue', 'Array', 'Graph'], correctAnswerIndex: 0, explanation: 'A Stack stores state changes in a LIFO order, allowing easy back-stepping.' },
+    { questionText: 'What is the main characteristic of a Trie (Prefix Tree)?', options: ['Optimized for fast string prefix lookups', 'Binary search representation', 'LIFO queue representation', 'Unordered mapping storage'], correctAnswerIndex: 0, explanation: 'Tries store sequences as paths, making prefix searches extremely fast.' }
   ]
 };
 
@@ -104,13 +149,26 @@ const mockQuiz = (topic, count = 5, difficulty = 'medium') => {
     baseQuestions = REAL_QUESTIONS.dsa;
   }
 
-  if (baseQuestions.length === 0) {
-    baseQuestions = fallbackQuestions(topic, count);
+  // Create a copy of matched base questions and shuffle them
+  let selected = [...baseQuestions].sort(() => Math.random() - 0.5);
+
+  // If the count requested is greater than what is available, or if we had no topic matches
+  if (selected.length < count) {
+    // Shuffled general fallbacks
+    const generalPool = fallbackQuestions(topic, count).sort(() => Math.random() - 0.5);
+    
+    // Add unique general questions that don't match already selected ones
+    for (const fallbackQ of generalPool) {
+      if (selected.length >= count) break;
+      const alreadyExists = selected.some(q => q.questionText === fallbackQ.questionText);
+      if (!alreadyExists) {
+        selected.push(fallbackQ);
+      }
+    }
   }
 
-  // Shuffle and slice questions
-  const shuffledQuestions = [...baseQuestions].sort(() => Math.random() - 0.5);
-  const selected = shuffledQuestions.slice(0, count);
+  // Slice down to requested count
+  selected = selected.slice(0, count);
 
   // Shuffle options for each question
   return selected.map(q => {
