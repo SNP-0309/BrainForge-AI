@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Brain, Gamepad2, Sparkles, BookOpen, Star, HelpCircle, Trophy, RefreshCw } from 'lucide-react';
+import { Brain, Gamepad2, Sparkles, BookOpen, Star, HelpCircle, Trophy, RefreshCw, ChevronRight } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';

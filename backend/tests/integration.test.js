@@ -135,7 +135,7 @@ describe('BrainForge AI Backend Integration Tests', () => {
     });
   });
 
-  describe('Quiz Generation Endpoint', () => {
+  describe('Quiz Endpoints', () => {
     it('should generate an AI quiz successfully', async () => {
       User.findOne.mockResolvedValue({ _id: 'user-123', role: 'student' });
       Quiz.create.mockResolvedValue({
@@ -152,6 +152,39 @@ describe('BrainForge AI Backend Integration Tests', () => {
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
       expect(response.body.data.title).toBe('AI Quiz: Node.js');
+    });
+
+    it('should submit and evaluate a quiz successfully', async () => {
+      User.findOne.mockResolvedValue({ _id: 'user-123', role: 'student' });
+      Quiz.findById.mockResolvedValue({
+        _id: 'quiz-123',
+        title: 'AI Quiz: Node.js',
+        questions: [{ questionText: 'Q1', options: ['A', 'B'], correctAnswerIndex: 0, points: 10, explanation: 'explanation' }]
+      });
+
+      jest.spyOn(require('../services/gamification.service'), 'awardRewards').mockResolvedValue(null);
+      jest.spyOn(require('../services/gamification.service'), 'checkAndUnlockAchievements').mockResolvedValue([]);
+
+      QuizAttempt.create.mockResolvedValue({
+        _id: 'attempt-123',
+        score: 10,
+        maxScore: 10,
+        isPassed: true,
+        coinsEarned: 10
+      });
+
+      const response = await request(app)
+        .post('/api/v1/quizzes/quiz-123/submit')
+        .set('Authorization', 'Bearer mock-student')
+        .send({
+          answers: [{ questionIndex: 0, selectedIndex: 0 }]
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.score).toBe(10);
+      expect(response.body.data.maxScore).toBe(10);
+      expect(response.body.data.passed).toBe(true);
     });
   });
 
