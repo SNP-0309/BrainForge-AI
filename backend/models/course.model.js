@@ -40,6 +40,31 @@ const courseSchema = new mongoose.Schema({
     type: Number,
     default: 0, // Estimated duration in hours
   },
+  isPaid: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
+  price: {
+    type: Number,
+    default: 0,
+  },
+  currency: {
+    type: String,
+    default: 'INR',
+  },
+  buyUrl: {
+    type: String,
+    default: '',
+  },
+  instructor: {
+    type: String,
+    default: '',
+  },
+  platform: {
+    type: String,
+    default: '',
+  },
 }, {
   timestamps: true,
 });
