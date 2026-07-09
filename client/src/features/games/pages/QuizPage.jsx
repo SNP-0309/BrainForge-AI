@@ -265,7 +265,7 @@ export default function QuizPage() {
                 <div className="flex justify-center mt-2">
                    <div className="bg-white border-2 border-black px-6 py-2 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-center min-w-[120px]">
                      <p className="text-[9px] font-mono font-black text-black/50">COINS EARNED</p>
-                     <p className="text-lg font-black text-black">+{results.rewards?.coinsAwarded || 0}</p>
+                     <p className="text-lg font-black text-black">+{results.coinsEarned || 0}</p>
                    </div>
                  </div>
 
