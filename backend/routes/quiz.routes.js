@@ -126,8 +126,11 @@ router.post('/:id/submit', validate(submitQuizSchema), async (req, res, next) =>
       user: req.user._id,
       score,
       maxScore,
-      answers: answers.map(a => a.selectedIndex),
-      passed,
+      answers: answers.map(a => ({
+        questionIndex: a.questionIndex,
+        selectedIndex: a.selectedIndex,
+      })),
+      isPassed: passed,
     });
 
     // Award XP/coins
