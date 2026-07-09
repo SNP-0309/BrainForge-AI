@@ -36,14 +36,98 @@ const mockRoadmap = (topic) => [
   { id: 'node_5', label: `${topic} Project Milestone`, type: 'milestone', status: 'locked', dependencies: ['node_4'] },
 ];
 
-const mockQuiz = (topic, count, difficulty) =>
-  Array.from({ length: count }, (_, i) => ({
-    questionText: `[Mock] Question ${i + 1} about ${topic} (${difficulty})`,
-    options: [`Correct Answer`, `Wrong Option A`, `Wrong Option B`, `Wrong Option C`],
-    correctAnswerIndex: 0,
-    points: 10,
-    explanation: `Mock explanation for question ${i + 1}.`,
-  }));
+const REAL_QUESTIONS = {
+  javascript: [
+    { questionText: 'Which of the following is NOT a JavaScript data type?', options: ['float', 'boolean', 'symbol', 'undefined'], correctAnswerIndex: 0, explanation: 'JavaScript has numbers (which represent both integers and floats), but does not have a separate "float" type.' },
+    { questionText: 'What is the correct way to write a template literal in JavaScript?', options: ['`Hello ${name}`', '"Hello " + name', "'Hello ${name}'", '"Hello ${name}"'], correctAnswerIndex: 0, explanation: 'Template literals use backticks (`) and support variable insertion via ${expression}.' },
+    { questionText: 'What is the output of typeof null in JavaScript?', options: ['"object"', '"null"', '"undefined"', '"string"'], correctAnswerIndex: 0, explanation: 'This is a long-standing bug in JavaScript where null is classified as an object.' },
+    { questionText: 'Which method adds one or more elements to the end of an array?', options: ['push()', 'pop()', 'shift()', 'unshift()'], correctAnswerIndex: 0, explanation: 'push() appends elements to the end; unshift() prepends them; pop() removes the last; shift() removes the first.' },
+    { questionText: 'What is the purpose of Promise.all()?', options: ['Runs multiple promises in parallel and resolves when all resolve', 'Runs promises sequentially', 'Resolves the fastest promise', 'Rejects all promises'], correctAnswerIndex: 0, explanation: 'Promise.all() accepts an iterable of promises and resolves when all input promises have resolved.' },
+    { questionText: 'Which operator is used to compare both value and type in JavaScript?', options: ['===', '==', '=', '!='], correctAnswerIndex: 0, explanation: '=== is the strict equality operator, checking both value and type equivalence.' },
+    { questionText: 'What is the primary difference between var and let/const?', options: ['var is function-scoped; let/const are block-scoped', 'let is function-scoped; var is block-scoped', 'const is global-scoped only', 'var is mutable; let is immutable'], correctAnswerIndex: 0, explanation: 'var is scoped to the enclosing function, whereas let and const are block-scoped.' }
+  ],
+  python: [
+    { questionText: 'How do you start a function definition in Python?', options: ['def', 'function', 'void', 'define'], correctAnswerIndex: 0, explanation: 'Python functions are declared using the def keyword followed by the function name.' },
+    { questionText: 'Which Python data structure is mutable and defined with square brackets?', options: ['list', 'tuple', 'dict', 'set'], correctAnswerIndex: 0, explanation: 'Lists are mutable ordered sequences defined using []. Tuples are immutable and use ().' },
+    { questionText: 'What is the output of bool([]) in Python?', options: ['False', 'True', 'None', 'Error'], correctAnswerIndex: 0, explanation: 'Empty collections (lists, tuples, dicts) evaluate to False in boolean contexts.' },
+    { questionText: 'How do you handle exceptions in Python?', options: ['try...except', 'try...catch', 'try...handle', 'throw...catch'], correctAnswerIndex: 0, explanation: 'Python uses the try...except block to handle run-time exceptions.' },
+    { questionText: 'What does the __init__ method do in Python?', options: ['Initializes a new instance of a class', 'Destroys a class instance', 'Imports a module', 'Prints a message'], correctAnswerIndex: 0, explanation: 'The __init__ method is a constructor that initializes object properties when an instance is created.' }
+  ],
+  react: [
+    { questionText: 'Which Hook should you use to run side effects in a functional component?', options: ['useEffect', 'useState', 'useContext', 'useReducer'], correctAnswerIndex: 0, explanation: 'useEffect handles side effects like API requests, subscriptions, and DOM updates.' },
+    { questionText: 'What is a key rule of React Hooks?', options: ['Only call Hooks at the top level', 'Only call Hooks inside loops', 'Only call Hooks in class components', 'Call Hooks conditionally'], correctAnswerIndex: 0, explanation: 'Hooks must not be called inside loops, conditions, or nested functions.' },
+    { questionText: 'How do you prevent a component from re-rendering unless its props change?', options: ['React.memo()', 'useCallback()', 'useMemo()', 'useState()'], correctAnswerIndex: 0, explanation: 'React.memo is a higher-order component that memoizes the rendered output to prevent unnecessary updates.' },
+    { questionText: 'What does useState return?', options: ['A state variable and a setter function', 'Just the state value', 'A dispatch function', 'A state object'], correctAnswerIndex: 0, explanation: 'useState returns a pair: the current state value and a function that updates it.' },
+    { questionText: 'Which hook is used to reference a DOM element directly?', options: ['useRef', 'useMemo', 'useImperativeHandle', 'useLayoutEffect'], correctAnswerIndex: 0, explanation: 'useRef creates a mutable object whose .current property references the passed DOM node.' }
+  ],
+  git: [
+    { questionText: 'Which command initializes a new local Git repository?', options: ['git init', 'git create', 'git start', 'git clone'], correctAnswerIndex: 0, explanation: 'git init creates an empty Git repository or reinitializes an existing one.' },
+    { questionText: 'How do you save your changes to the staging area in Git?', options: ['git add', 'git commit', 'git save', 'git push'], correctAnswerIndex: 0, explanation: 'git add stages untracked or modified files; git commit permanently records them.' },
+    { questionText: 'Which command shows the commit history of a repository?', options: ['git log', 'git status', 'git history', 'git show'], correctAnswerIndex: 0, explanation: 'git log lists commits in reverse chronological order.' },
+    { questionText: 'How do you download changes and merge them from a remote branch?', options: ['git pull', 'git fetch', 'git clone', 'git push'], correctAnswerIndex: 0, explanation: 'git pull fetches changes and immediately merges them into your current local branch.' }
+  ],
+  sql: [
+    { questionText: 'Which clause is used to filter rows in a SQL query?', options: ['WHERE', 'HAVING', 'GROUP BY', 'ORDER BY'], correctAnswerIndex: 0, explanation: 'WHERE filters records before grouping; HAVING filters records after grouping.' },
+    { questionText: 'Which JOIN returns all matching records and all left table records?', options: ['LEFT JOIN', 'INNER JOIN', 'RIGHT JOIN', 'FULL JOIN'], correctAnswerIndex: 0, explanation: 'A LEFT JOIN returns all rows from the left table, with corresponding matching values from the right.' },
+    { questionText: 'What is the purpose of a PRIMARY KEY in a table?', options: ['Uniquely identifies each record in the table', 'Speeds up text searching', 'Links two tables together', 'Allows duplicate values'], correctAnswerIndex: 0, explanation: 'A Primary Key uniquely identifies rows, preventing duplicate entries and null values.' }
+  ],
+  dsa: [
+    { questionText: 'What is the worst-case time complexity of searching in a Binary Search Tree (BST)?', options: ['O(N)', 'O(log N)', 'O(1)', 'O(N log N)'], correctAnswerIndex: 0, explanation: 'If the BST is skewed (unbalanced), searching degrades to O(N).' },
+    { questionText: 'Which data structure operates on a Last-In-First-Out (LIFO) basis?', options: ['Stack', 'Queue', 'Linked List', 'Heap'], correctAnswerIndex: 0, explanation: 'Stacks are LIFO structures (elements pushed last are popped first).' },
+    { questionText: 'What is the average-case time complexity of Quick Sort?', options: ['O(N log N)', 'O(N^2)', 'O(N)', 'O(log N)'], correctAnswerIndex: 0, explanation: 'Quick Sort divides the input array in halves on average, leading to O(N log N) efficiency.' }
+  ]
+};
+
+const fallbackQuestions = (topic, count) => [
+  { questionText: 'What is the primary role of a compiler in computer science?', options: ['Translates source code into machine code', 'Executes the program directly', 'Finds syntax errors during run-time', 'Manages memory layouts'], correctAnswerIndex: 0, explanation: 'Compilers translate source code written in a high-level programming language into machine code for execution.' },
+  { questionText: 'Which of the following is considered an immutable data type?', options: ['String', 'Array', 'Object', 'Dictionary'], correctAnswerIndex: 0, explanation: 'Strings are immutable in many languages (like JS and Python)—any modification creates a new string.' },
+  { questionText: 'What does the term "API" stand for?', options: ['Application Programming Interface', 'Application Processor Integration', 'Advanced Programming Instruction', 'Auto Program Initiator'], correctAnswerIndex: 0, explanation: 'API stands for Application Programming Interface, which allows software systems to communicate.' },
+  { questionText: 'What is the purpose of version control software (e.g. Git)?', options: ['Track and manage code changes over time', 'Compile code into binaries', 'Deploy websites to host servers', 'Run performance profiling checks'], correctAnswerIndex: 0, explanation: 'Version control software manages the history of changes made to source files.' },
+  { questionText: 'Which data structure uses key-value pairs for constant-time lookups?', options: ['Hash Table / Dictionary', 'Linked List', 'Binary Tree', 'Stack'], correctAnswerIndex: 0, explanation: 'Hash tables map keys to values using hash functions, achieving average O(1) retrieval times.' }
+];
+
+const mockQuiz = (topic, count = 5, difficulty = 'medium') => {
+  const normTopic = topic.toLowerCase();
+  let baseQuestions = [];
+
+  if (normTopic.includes('javascript') || normTopic.includes('js')) {
+    baseQuestions = REAL_QUESTIONS.javascript;
+  } else if (normTopic.includes('python')) {
+    baseQuestions = REAL_QUESTIONS.python;
+  } else if (normTopic.includes('react')) {
+    baseQuestions = REAL_QUESTIONS.react;
+  } else if (normTopic.includes('git')) {
+    baseQuestions = REAL_QUESTIONS.git;
+  } else if (normTopic.includes('sql') || normTopic.includes('database')) {
+    baseQuestions = REAL_QUESTIONS.sql;
+  } else if (normTopic.includes('dsa') || normTopic.includes('algorithm') || normTopic.includes('structure')) {
+    baseQuestions = REAL_QUESTIONS.dsa;
+  }
+
+  if (baseQuestions.length === 0) {
+    baseQuestions = fallbackQuestions(topic, count);
+  }
+
+  // Shuffle and slice questions
+  const shuffledQuestions = [...baseQuestions].sort(() => Math.random() - 0.5);
+  const selected = shuffledQuestions.slice(0, count);
+
+  // Shuffle options for each question
+  return selected.map(q => {
+    const optionsWithIndices = q.options.map((opt, idx) => ({
+      opt,
+      isCorrect: idx === q.correctAnswerIndex
+    }));
+    const shuffledOpts = optionsWithIndices.sort(() => Math.random() - 0.5);
+    return {
+      questionText: q.questionText,
+      options: shuffledOpts.map(o => o.opt),
+      correctAnswerIndex: shuffledOpts.findIndex(o => o.isCorrect),
+      points: q.points || 10,
+      explanation: q.explanation || 'No explanation provided.'
+    };
+  });
+};
 
 const mockFlashcards = (topic, count) =>
   Array.from({ length: count }, (_, i) => ({
