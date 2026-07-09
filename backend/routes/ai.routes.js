@@ -5,11 +5,15 @@ const {
   tutorChatSchema,
   generateNotesSchema,
   reviewCodeSchema,
+  generateFlashcardsSchema,
+  generateProjectIdeasSchema,
 } = require('../validators/ai.validator');
 const {
   chatTutor,
   generateNotes,
   reviewCode,
+  generateFlashcards,
+  generateProjectIdeas,
   getWeakTopics,
 } = require('../controllers/ai.controller');
 
@@ -20,6 +24,8 @@ router.use(protect);
 router.post('/tutor/chat', validate(tutorChatSchema), chatTutor);
 router.post('/notes/generate', validate(generateNotesSchema), generateNotes);
 router.post('/review/code', validate(reviewCodeSchema), reviewCode);
+router.post('/flashcards/generate', validate(generateFlashcardsSchema), generateFlashcards);
+router.post('/projects/generate', validate(generateProjectIdeasSchema), generateProjectIdeas);
 router.get('/weak-topics', getWeakTopics);
 
 module.exports = router;

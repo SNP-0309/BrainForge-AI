@@ -53,17 +53,22 @@ const chatTutor = async (req, res, next) => {
 
 const generateNotes = async (req, res, next) => {
   try {
-    const { lessonId, aiProvider } = req.body;
-    if (!lessonId) {
-      return next(new BadRequestError('Lesson ID is required'));
+    const { lessonId, topic, aiProvider } = req.body;
+    if (!lessonId && !topic) {
+      return next(new BadRequestError('Either Lesson ID or Topic is required'));
     }
 
-    const lesson = await Lesson.findById(lessonId);
-    if (!lesson) {
-      return next(new NotFoundError('Lesson not found'));
+    let notes;
+    if (lessonId) {
+      const lesson = await Lesson.findById(lessonId);
+      if (!lesson) {
+        return next(new NotFoundError('Lesson not found'));
+      }
+      notes = await aiService.generateNotes(lesson.title, lesson.content, aiProvider);
+    } else {
+      notes = await aiService.generateNotes(topic, `Comprehensive overview and study notes for learning ${topic}.`, aiProvider);
     }
-
-    const notes = await aiService.generateNotes(lesson.title, lesson.content, aiProvider);
+    
     sendResponse(res, 200, 'AI notes generated successfully', { notes });
   } catch (error) {
     next(error);
@@ -79,6 +84,43 @@ const reviewCode = async (req, res, next) => {
 
     const feedback = await aiService.reviewCode(code, language || 'javascript', aiProvider);
     sendResponse(res, 200, 'AI code review completed', { feedback });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const generateFlashcards = async (req, res, next) => {
+  try {
+    const { topic, count = 5, aiProvider } = req.body;
+    if (!topic) {
+      return next(new BadRequestError('Topic is required'));
+    }
+
+    const flashcards = await aiService.generateFlashcards(topic, Number(count), aiProvider);
+    sendResponse(res, 200, 'AI flashcards generated successfully', { flashcards });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const generateProjectIdeas = async (req, res, next) => {
+  try {
+    const { topic, aiProvider } = req.body;
+    if (!topic) {
+      return next(new BadRequestError('Topic is required'));
+    }
+
+    const prompt = `Generate 3 mini project ideas for beginners learning "${topic}". For each project, provide:
+1. Title
+2. Clear Description
+3. Key learning steps
+Return the response in clean Markdown with clear headings.`;
+
+    const response = await aiService.chat([
+      { sender: 'user', content: prompt }
+    ], 'You are an encouraging AI career mentor. Provide practical and engaging mini-project ideas.', aiProvider);
+
+    sendResponse(res, 200, 'AI project ideas generated successfully', { projectIdeas: response });
   } catch (error) {
     next(error);
   }
@@ -129,5 +171,7 @@ module.exports = {
   chatTutor,
   generateNotes,
   reviewCode,
+  generateFlashcards,
+  generateProjectIdeas,
   getWeakTopics,
 };

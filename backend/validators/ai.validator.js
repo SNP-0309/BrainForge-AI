@@ -10,8 +10,12 @@ const tutorChatSchema = z.object({
 
 const generateNotesSchema = z.object({
   body: z.object({
-    lessonId: z.string({ required_error: 'Lesson ID is required' }).regex(/^[0-9a-fA-F]{24}$/, 'Invalid Lesson MongoDB ID'),
+    lessonId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid Lesson MongoDB ID').optional(),
+    topic: z.string().min(1, 'Topic cannot be empty').optional(),
     aiProvider: z.enum(['gemini', 'groq']).optional(),
+  }).refine(data => data.lessonId || data.topic, {
+    message: 'Either lessonId or topic must be provided',
+    path: ['lessonId'],
   }),
 });
 
@@ -23,8 +27,25 @@ const reviewCodeSchema = z.object({
   }),
 });
 
+const generateFlashcardsSchema = z.object({
+  body: z.object({
+    topic: z.string({ required_error: 'Topic is required' }).trim().min(1, 'Topic cannot be empty'),
+    count: z.number().optional().default(5),
+    aiProvider: z.enum(['gemini', 'groq']).optional(),
+  }),
+});
+
+const generateProjectIdeasSchema = z.object({
+  body: z.object({
+    topic: z.string({ required_error: 'Topic is required' }).trim().min(1, 'Topic cannot be empty'),
+    aiProvider: z.enum(['gemini', 'groq']).optional(),
+  }),
+});
+
 module.exports = {
   tutorChatSchema,
   generateNotesSchema,
   reviewCodeSchema,
+  generateFlashcardsSchema,
+  generateProjectIdeasSchema,
 };

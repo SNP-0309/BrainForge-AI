@@ -10,6 +10,7 @@ import CareerRecommendationsPage from '../features/auth/pages/CareerRecommendati
 import DashboardPage from '../features/dashboard/pages/DashboardPage'
 import CourseCatalogPage from '../features/courses/pages/CourseCatalogPage'
 import CourseDetailPage from '../features/courses/pages/CourseDetailPage'
+import RecommendedCoursesPage from '../features/courses/pages/RecommendedCoursesPage'
 import LessonPlayerPage from '../features/courses/pages/LessonPlayerPage'
 import RoadmapPage from '../features/roadmaps/pages/RoadmapPage'
 import AiTutorPage from '../features/ai-tutor/pages/AiTutorPage'
@@ -53,6 +54,7 @@ export default function AppRoutes() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/courses" element={<CourseCatalogPage />} />
+        <Route path="/courses/recommended" element={<RecommendedCoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
         <Route path="/lessons/:id" element={<LessonPlayerPage />} />
         <Route path="/roadmaps" element={<RoadmapPage />} />
