@@ -93,25 +93,11 @@ export default function RoadmapPage() {
         setSelectedNode(updatedNode);
       }
 
-      showToast(`Module completed! Unlocked 5 post-module AI tools. Received +${xpAwarded} XP!`, 'success');
+      showToast(`Module marked completed! Unlocked post-module AI study tools.`, 'success');
       
-      // Sync user profile state (XP / Coins)
+      // Sync user profile state (refresh data)
       const userRes = await api.get('/users/me');
       setUser(userRes.data.data);
-      
-      // Check off the task in today's daily mission
-      try {
-        const todayMission = userRes.data.data.profile.dailyMission;
-        if (todayMission && todayMission.tasks) {
-          const task = todayMission.tasks.find(t => t.label.includes(selectedNode?.label || updatedNode?.label));
-          if (task && !task.completed) {
-            await api.put(`/missions/task/${task.id}/complete`);
-          }
-        }
-      } catch (e) {
-        console.warn('Failed to sync daily mission task status:', e);
-      }
-
     } catch (err) {
       console.error('Failed to complete roadmap node:', err);
     } finally {
@@ -525,7 +511,7 @@ export default function RoadmapPage() {
               <div className="pt-6 border-t-2 border-black/15 mt-6">
                 {selectedNode.status === 'completed' ? (
                   <div className="flex items-center gap-2 text-brutal-green justify-center font-bold text-sm bg-brutal-green/10 border-2 border-black p-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black font-black uppercase">
-                    <CheckCircle className="w-5 h-5 text-green-700" /> Completed Module (+20 XP, +2 Coins Awarded)
+                    <CheckCircle className="w-5 h-5 text-green-700" /> Module Completed Successfully
                   </div>
                 ) : (
                   <Button
@@ -540,7 +526,7 @@ export default function RoadmapPage() {
                       </>
                     ) : (
                       <>
-                        Mark Module Completed (+20 XP) <CheckCircle className="w-4 h-4" />
+                        Mark Module Completed <CheckCircle className="w-4 h-4" />
                       </>
                     )}
                   </Button>
