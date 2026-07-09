@@ -92,8 +92,18 @@ export default function CourseCatalogPage() {
                 >
                   <div>
                     {/* Header Banner */}
-                    <div className={`w-full h-28 border-b-[3px] border-black flex flex-col justify-between p-4 ${randomColor}`}>
-                      <div className="flex items-center justify-between">
+                    <div className="w-full h-36 border-b-[3px] border-black relative overflow-hidden flex flex-col justify-between p-4 bg-black">
+                      {course.thumbnail ? (
+                        <img 
+                          src={course.thumbnail} 
+                          alt={course.title}
+                          className="absolute inset-0 w-full h-full object-cover opacity-80 hover:scale-105 transition-transform duration-300 z-0"
+                        />
+                      ) : (
+                        <div className={`absolute inset-0 w-full h-full z-0 ${randomColor}`} />
+                      )}
+                      
+                      <div className="flex items-center justify-between z-10 relative">
                         <span className="bg-black text-white border border-black px-2 py-0.5 text-[9px] font-black rounded uppercase font-mono shadow-[1px_1px_0px_0px_#000]">
                           {course.platform || 'Premium'}
                         </span>
@@ -103,7 +113,7 @@ export default function CourseCatalogPage() {
                       </div>
                       
                       {/* Price Tag */}
-                      <div className="bg-white border-2 border-black px-2.5 py-1 text-xs font-black rounded-lg shadow-[2px_2px_0px_0px_#000] self-start flex items-center gap-0.5">
+                      <div className="bg-white border-2 border-black px-2.5 py-1 text-xs font-black rounded-lg shadow-[2px_2px_0px_0px_#000] self-start flex items-center gap-0.5 z-10 relative">
                         <IndianRupee size={12} className="stroke-[3px]" />
                         {course.price?.toLocaleString('en-IN') || 'Paid'}
                       </div>
