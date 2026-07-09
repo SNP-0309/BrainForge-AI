@@ -7,7 +7,7 @@ const { NotFoundError, BadRequestError } = require('../utils/CustomError');
 
 const chatTutor = async (req, res, next) => {
   try {
-    const { chatId, message } = req.body;
+    const { chatId, message, aiProvider } = req.body;
     if (!message) {
       return next(new BadRequestError('Message is required'));
     }
@@ -21,15 +21,15 @@ const chatTutor = async (req, res, next) => {
     } else {
       chat = await AIChat.create({
         user: req.user._id,
-        provider: 'gemini',
-        model: 'gemini-1.5-flash',
+        provider: aiProvider || 'gemini',
+        model: aiProvider === 'groq' ? 'llama3-8b-8192' : 'gemini-1.5-flash',
         messages: [],
       });
     }
 
     chat.messages.push({ sender: 'user', content: message });
 
-    const aiResponse = await aiService.chat(chat.messages);
+    const aiResponse = await aiService.chat(chat.messages, null, aiProvider);
 
     chat.messages.push({ sender: 'assistant', content: aiResponse });
 
@@ -53,7 +53,7 @@ const chatTutor = async (req, res, next) => {
 
 const generateNotes = async (req, res, next) => {
   try {
-    const { lessonId } = req.body;
+    const { lessonId, aiProvider } = req.body;
     if (!lessonId) {
       return next(new BadRequestError('Lesson ID is required'));
     }
@@ -63,7 +63,7 @@ const generateNotes = async (req, res, next) => {
       return next(new NotFoundError('Lesson not found'));
     }
 
-    const notes = await aiService.generateNotes(lesson.title, lesson.content);
+    const notes = await aiService.generateNotes(lesson.title, lesson.content, aiProvider);
     sendResponse(res, 200, 'AI notes generated successfully', { notes });
   } catch (error) {
     next(error);
@@ -72,12 +72,12 @@ const generateNotes = async (req, res, next) => {
 
 const reviewCode = async (req, res, next) => {
   try {
-    const { code, language } = req.body;
+    const { code, language, aiProvider } = req.body;
     if (!code) {
       return next(new BadRequestError('Code snippet is required'));
     }
 
-    const feedback = await aiService.reviewCode(code, language || 'javascript');
+    const feedback = await aiService.reviewCode(code, language || 'javascript', aiProvider);
     sendResponse(res, 200, 'AI code review completed', { feedback });
   } catch (error) {
     next(error);

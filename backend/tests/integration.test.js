@@ -12,6 +12,9 @@ const Quiz = require('../models/quiz.model');
 const QuizAttempt = require('../models/quiz-attempt.model');
 const Achievement = require('../models/achievement.model');
 const UserAchievement = require('../models/user-achievement.model');
+const Test = require('../models/test.model');
+const TestAttempt = require('../models/test-attempt.model');
+const Interview = require('../models/interview.model');
 
 jest.mock('../models/user.model');
 jest.mock('../models/course.model');
@@ -20,10 +23,24 @@ jest.mock('../models/quiz.model');
 jest.mock('../models/quiz-attempt.model');
 jest.mock('../models/achievement.model');
 jest.mock('../models/user-achievement.model');
+jest.mock('../models/test.model');
+jest.mock('../models/test-attempt.model');
+jest.mock('../models/interview.model');
 
 // Mock firebase admin configuration
 jest.mock('../config/firebase.js', () => ({
   apps: [],
+}));
+
+// Mock ai.service
+jest.mock('../services/ai.service.js', () => ({
+  generateQuiz: jest.fn().mockResolvedValue([
+    { questionText: 'Q1', options: ['A', 'B'], correctAnswerIndex: 0, points: 10, explanation: 'exp' }
+  ]),
+  generateTestPaper: jest.fn().mockResolvedValue([
+    { question: 'TQ1', type: 'mcq', options: ['A', 'B'], correctAnswer: 0, explanation: 'exp', marks: 1, topic: 'Node', difficulty: 'easy' }
+  ]),
+  interviewChat: jest.fn().mockResolvedValue('Interviewer first question'),
 }));
 
 const app = require('../server');
@@ -115,6 +132,69 @@ describe('BrainForge AI Backend Integration Tests', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(2);
+    });
+  });
+
+  describe('Quiz Generation Endpoint', () => {
+    it('should generate an AI quiz successfully', async () => {
+      User.findOne.mockResolvedValue({ _id: 'user-123', role: 'student' });
+      Quiz.create.mockResolvedValue({
+        _id: 'quiz-123',
+        title: 'AI Quiz: Node.js',
+        questions: [{ questionText: 'Q1', options: ['A', 'B'], correctAnswerIndex: 0, points: 10 }]
+      });
+
+      const response = await request(app)
+        .post('/api/v1/quizzes/generate')
+        .set('Authorization', 'Bearer mock-student')
+        .send({ topic: 'Node.js' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe('AI Quiz: Node.js');
+    });
+  });
+
+  describe('Test Engine Endpoints', () => {
+    it('should list available public tests', async () => {
+      User.findOne.mockResolvedValue({ _id: 'user-123', role: 'student' });
+      Test.find.mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        populate: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockResolvedValue([{ title: 'JavaScript Certification Mock', type: 'mock' }])
+      });
+      Test.countDocuments.mockResolvedValue(1);
+
+      const response = await request(app)
+        .get('/api/v1/tests')
+        .set('Authorization', 'Bearer mock-student');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.tests).toHaveLength(1);
+    });
+  });
+
+  describe('Interview Module Endpoints', () => {
+    it('should start a mock interview session', async () => {
+      User.findOne.mockResolvedValue({ _id: 'user-123', role: 'student' });
+      Interview.create.mockResolvedValue({
+        _id: 'interview-123',
+        role: 'SDE',
+        interviewType: 'technical',
+        status: 'in-progress'
+      });
+
+      const response = await request(app)
+        .post('/api/v1/interviews/start')
+        .set('Authorization', 'Bearer mock-student')
+        .send({ role: 'SDE', interviewType: 'technical' });
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.firstMessage).toBe('Interviewer first question');
     });
   });
 });

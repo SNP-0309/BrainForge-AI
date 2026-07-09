@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { onAuthChanged } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import api from '../config/api';
 
@@ -8,7 +7,7 @@ export const useAuth = () => {
   const { user, firebaseUser, loading, setFirebaseUser, setUser, setLoading, clearAuth } = useAuthStore();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+    const unsubscribe = onAuthChanged(async (fbUser) => {
       if (fbUser) {
         setFirebaseUser(fbUser);
         try {

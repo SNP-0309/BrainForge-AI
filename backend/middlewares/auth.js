@@ -15,39 +15,47 @@ const verifyFirebaseToken = async (req, res, next) => {
       return next(new UnauthorizedError('Please log in to access this resource'));
     }
 
-    // Support mock verification in local testing if firebase admin is not initialized
-    if (!admin || !admin.apps || admin.apps.length === 0) {
-      if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-        logger.warn('Firebase Admin SDK not initialized. Using fallback mock verification.');
-        
-        // Mock decoding from token
-        let uid = 'mock-uid-123';
-        let email = 'mockuser@example.com';
-        let name = 'Mock User';
+    // Support mock verification in local development/test mode
+    const isDevOrTest = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+    const isMockToken = token === 'mock' || token.startsWith('mock-');
 
-        // Custom mock token formats
-        if (token.startsWith('mock-admin')) {
-          uid = 'mock-admin-uid';
-          email = 'admin@brainforge.ai';
-          name = 'Mock Admin';
-        } else if (token.startsWith('mock-teacher')) {
-          uid = 'mock-teacher-uid';
-          email = 'teacher@brainforge.ai';
-          name = 'Mock Teacher';
-        } else if (token.startsWith('mock-student')) {
-          uid = 'mock-student-uid';
-          email = 'student@brainforge.ai';
-          name = 'Mock Student';
-        } else if (token !== 'mock') {
-          uid = `mock-${token}-uid`;
-          email = `${token}@example.com`;
-          name = `Mock ${token}`;
-        }
+    if (isMockToken && isDevOrTest) {
+      logger.warn('Mock token detected in development. Using fallback mock verification.');
+      
+      let uid = 'mock-uid-123';
+      let email = 'mockuser@example.com';
+      let name = 'Mock User';
+      let role = 'student';
 
-        req.firebaseUser = { uid, email, name };
-        return next();
+      if (token.startsWith('mock-admin')) {
+        uid = 'mock-admin-uid';
+        email = 'admin@brainforge.ai';
+        name = 'Mock Admin';
+        role = 'admin';
+      } else if (token.startsWith('mock-teacher')) {
+        uid = 'mock-teacher-uid';
+        email = 'teacher@brainforge.ai';
+        name = 'Mock Teacher';
+        role = 'teacher';
+      } else if (token.startsWith('mock-student')) {
+        uid = 'mock-student-uid';
+        email = 'student@brainforge.ai';
+        name = 'Mock Student';
+        role = 'student';
+      } else if (token !== 'mock') {
+        uid = `mock-${token}-uid`;
+        email = `${token}@example.com`;
+        name = `Mock ${token}`;
+        if (token.includes('teacher')) role = 'teacher';
+        if (token.includes('admin')) role = 'admin';
       }
-      return next(new UnauthorizedError('Authentication service unavailable'));
+
+      req.firebaseUser = { uid, email, name, role };
+      return next();
+    }
+
+    if (!admin || !admin.apps || admin.apps.length === 0) {
+      return next(new UnauthorizedError('Authentication service unavailable (Firebase Admin not initialized)'));
     }
 
     const decodedToken = await admin.auth().verifyIdToken(token);

@@ -33,10 +33,32 @@ class NotFoundError extends AppError {
   }
 }
 
+class ConflictError extends AppError {
+  constructor(message = 'Conflict') {
+    super(message, 409);
+  }
+}
+
+class UnprocessableEntityError extends AppError {
+  constructor(message = 'Unprocessable Entity') {
+    super(message, 422);
+  }
+}
+
+class TooManyRequestsError extends AppError {
+  constructor(message = 'Too Many Requests') {
+    super(message, 429);
+  }
+}
+
 module.exports = {
   AppError,
   BadRequestError,
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
+  ConflictError,
+  UnprocessableEntityError,
+  TooManyRequestsError,
 };
+

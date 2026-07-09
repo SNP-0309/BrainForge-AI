@@ -20,6 +20,7 @@ const syncUser = async (req, res, next) => {
         firebaseUid: uid,
         name: name || email.split('@')[0],
         email,
+        role: req.firebaseUser.role || 'student',
         profile: {
           avatar: picture || '',
           xp: 0,

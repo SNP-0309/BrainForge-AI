@@ -1,16 +1,16 @@
 import { motion } from 'framer-motion'
 
 const variants = {
-  primary: 'bg-primary hover:bg-primary-hover text-white',
-  secondary: 'bg-card-hover hover:bg-border text-foreground border border-border',
-  ghost: 'hover:bg-card-hover text-muted hover:text-foreground',
-  danger: 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20',
+  primary: 'bg-brutal-yellow text-black border-[3px] border-black shadow-brutal font-extrabold',
+  secondary: 'bg-white text-black border-[3px] border-black shadow-brutal font-extrabold',
+  ghost: 'text-black hover:bg-black/10 font-bold',
+  danger: 'bg-brutal-pink text-black border-[3px] border-black shadow-brutal font-extrabold',
 }
 
 const sizes = {
   sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
+  md: 'px-5 py-2.5 text-sm',
+  lg: 'px-7 py-3.5 text-base',
 }
 
 export default function Button({
@@ -24,12 +24,13 @@ export default function Button({
 }) {
   return (
     <motion.button
-      whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
-      whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
+      whileHover={disabled || loading ? {} : { x: -3, y: -3, boxShadow: '7px 7px 0px 0px #000000' }}
+      whileTap={disabled || loading ? {} : { x: 3, y: 3, boxShadow: '0px 0px 0px 0px #000000' }}
+      transition={{ duration: 0.1, ease: 'easeOut' }}
       disabled={disabled || loading}
       className={`
-        inline-flex items-center justify-center gap-2 font-medium rounded-lg
-        transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+        inline-flex items-center justify-center gap-2 rounded-xl
+        transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed
         ${variants[variant]} ${sizes[size]} ${className}
       `}
       {...props}

@@ -51,6 +51,40 @@ const userSchema = new mongoose.Schema({
       type: Date,
       default: Date.now,
     },
+    chosenCareerPath: {
+      type: String,
+      default: '',
+    },
+    assessmentCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    assessmentRecommendations: {
+      type: Array,
+      default: [],
+    },
+    dailyMission: {
+      date: {
+        type: Date,
+        default: null,
+      },
+      tasks: [{
+        id: String,
+        label: String,
+        completed: {
+          type: Boolean,
+          default: false,
+        },
+        type: {
+          type: String,
+          default: 'lesson',
+        },
+      }],
+      claimed: {
+        type: Boolean,
+        default: false,
+      },
+    },
   },
 }, {
   timestamps: true,

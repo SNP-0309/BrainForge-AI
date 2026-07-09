@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion'
 
-export default function Card({ children, className = '', hover = false, ...props }) {
+export default function Card({ children, className = '', hover = false, bg = 'bg-white', ...props }) {
   return (
     <motion.div
-      whileHover={hover ? { y: -2, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' } : {}}
-      transition={{ duration: 0.2 }}
-      className={`bg-card border border-border rounded-lg p-4 ${className}`}
+      whileHover={hover ? { x: -3, y: -3, boxShadow: '7px 7px 0px 0px #000000' } : {}}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
+      className={`${bg} border-[3px] border-black rounded-xl p-5 shadow-brutal text-black ${className}`}
       {...props}
     >
       {children}

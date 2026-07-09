@@ -27,10 +27,15 @@ export default function CourseCatalogPage() {
   const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="max-w-5xl mx-auto space-y-6"
+    >
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Course Catalog</h1>
-        <p className="text-sm text-muted mt-1">Discover and enroll in expert-crafted courses</p>
+        <h1 className="text-3xl font-black text-black uppercase tracking-wider">Course Catalog</h1>
+        <p className="text-sm text-black/70 font-bold mt-1">Discover and enroll in expert-crafted courses</p>
       </div>
 
       {/* Filters */}
@@ -41,7 +46,7 @@ export default function CourseCatalogPage() {
         <select
           value={difficulty}
           onChange={e => setDifficulty(e.target.value)}
-          className="bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+          className="bg-white border-[3px] border-black rounded-xl px-4 py-3 text-sm text-black font-semibold shadow-[2px_2px_0px_0px_#000000] focus:shadow-[4px_4px_0px_0px_#000000] focus:translate-x-[-1px] focus:translate-y-[-1px] outline-none transition-all"
         >
           <option value="">All Levels</option>
           <option value="beginner">Beginner</option>
@@ -62,17 +67,17 @@ export default function CourseCatalogPage() {
           {data.courses.map(course => (
             <motion.div key={course._id} variants={item}>
               <Card hover className="cursor-pointer h-full flex flex-col gap-3" onClick={() => navigate(`/courses/${course._id}`)}>
-                <div className="w-full h-32 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                  <BookOpen size={32} className="text-primary" />
+                <div className="w-full h-32 rounded-xl bg-brutal-purple border-b-[3px] border-black flex items-center justify-center">
+                  <BookOpen size={32} className="text-black" />
                 </div>
                 <div className="flex-1 space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">{course.title}</h3>
+                    <h3 className="text-sm font-black text-black leading-tight line-clamp-2">{course.title}</h3>
                     <Badge variant={difficultyVariant[course.difficulty] ?? 'default'} className="shrink-0">
                       {course.difficulty}
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted line-clamp-2">{course.description}</p>
+                  <p className="text-xs text-black/85 line-clamp-2">{course.description}</p>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {course.tags?.slice(0, 3).map(tag => (
@@ -84,6 +89,6 @@ export default function CourseCatalogPage() {
           ))}
         </motion.div>
       )}
-    </div>
+    </motion.div>
   )
 }

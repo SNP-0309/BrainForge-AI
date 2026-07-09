@@ -10,6 +10,10 @@ const leaderboardRoutes = require('./leaderboard.routes');
 const bookmarkRoutes = require('./bookmark.routes');
 const achievementRoutes = require('./achievement.routes');
 const notificationRoutes = require('./notification.routes');
+const testRoutes = require('./test.routes');
+const interviewRoutes = require('./interview.routes');
+const careerRoutes = require('./career.routes');
+const missionRoutes = require('./mission.routes');
 
 const router = express.Router();
 
@@ -24,5 +28,9 @@ router.use('/leaderboard', leaderboardRoutes);
 router.use('/bookmarks', bookmarkRoutes);
 router.use('/achievements', achievementRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/tests', testRoutes);
+router.use('/interviews', interviewRoutes);
+router.use('/career', careerRoutes);
+router.use('/missions', missionRoutes);
 
 module.exports = router;

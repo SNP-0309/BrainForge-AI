@@ -1,15 +1,15 @@
 const variants = {
-  default: 'bg-card border border-border text-muted',
-  primary: 'bg-primary/10 border border-primary/30 text-primary',
-  success: 'bg-green-500/10 border border-green-500/30 text-green-400',
-  warning: 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-400',
-  danger: 'bg-red-500/10 border border-red-500/30 text-red-400',
-  accent: 'bg-accent/10 border border-accent/30 text-accent',
+  default: 'bg-white border-2 border-black text-black',
+  primary: 'bg-brutal-yellow border-2 border-black text-black',
+  success: 'bg-brutal-green border-2 border-black text-black',
+  warning: 'bg-brutal-yellow border-2 border-black text-black',
+  danger: 'bg-brutal-pink border-2 border-black text-black',
+  accent: 'bg-brutal-purple border-2 border-black text-black',
 }
 
 export default function Badge({ children, variant = 'default', className = '' }) {
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${variants[variant]} ${className}`}>
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] ${variants[variant]} ${className}`}>
       {children}
     </span>
   )
