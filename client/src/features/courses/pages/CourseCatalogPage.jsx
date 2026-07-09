@@ -88,7 +88,7 @@ export default function CourseCatalogPage() {
                 <Card 
                   hover 
                   className="cursor-pointer h-full flex flex-col justify-between overflow-hidden p-0 bg-white"
-                  onClick={() => navigate(`/courses/${course._id}`)}
+                  onClick={() => window.open(course.buyUrl || 'https://www.udemy.com', '_blank', 'noopener,noreferrer')}
                 >
                   <div>
                     {/* Header Banner */}
