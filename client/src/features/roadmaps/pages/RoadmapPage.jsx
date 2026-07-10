@@ -587,9 +587,8 @@ export default function RoadmapPage() {
                     </div>
 
                     {/* Flippable card */}
-                    <TouchableOpacity
-                      onPress={() => setIsFlipped(!isFlipped)}
-                      activeOpacity={0.9}
+                    <div
+                      onClick={() => setIsFlipped(!isFlipped)}
                       className="w-full max-w-sm aspect-[3/2] cursor-pointer"
                     >
                       <motion.div
@@ -630,7 +629,7 @@ export default function RoadmapPage() {
                           )}
                         </div>
                       </motion.div>
-                    </TouchableOpacity>
+                    </div>
 
                     {/* Navigation */}
                     <div className="flex gap-4 mt-8 shrink-0">
