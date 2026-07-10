@@ -153,7 +153,7 @@ export default function AiTutorPage() {
             </div>
             <div>
               <h2 className="font-black text-base uppercase text-black flex items-center gap-1.5">
-                BrainForge AI Mentor <Sparkles className="w-4 h-4" />
+                AI Career Guidance Mentor <Sparkles className="w-4 h-4" />
               </h2>
               <span className="text-[10px] font-mono font-bold text-black/60 block">Online • Ready to solve doubts</span>
             </div>
