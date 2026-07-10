@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { BookOpen, Trophy, ChevronRight, Compass, ShieldCheck } from 'lucide-react'
+import { BookOpen, Briefcase, ChevronRight, Compass, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '../../../store/authStore'
 import api from '../../../config/api'
 import Card from '../../../components/ui/Card'
@@ -18,11 +18,6 @@ const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }
 export default function DashboardPage() {
   const { user } = useAuthStore()
   const navigate = useNavigate();
-
-  const { data: leaderboardData, isLoading: lbLoading } = useQuery({
-    queryKey: ['leaderboard'],
-    queryFn: () => api.get('/leaderboard?limit=5').then(r => r.data.data),
-  })
 
   const { data: coursesData, isLoading: coursesLoading } = useQuery({
     queryKey: ['courses', 'recent'],

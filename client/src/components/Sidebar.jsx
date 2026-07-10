@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, Map, Bot, Gamepad2,
-  Trophy, User, ChevronLeft, Zap, Shield, Settings, Youtube
+  Briefcase, User, ChevronLeft, Zap, Shield, Settings, Youtube
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 
@@ -13,7 +13,7 @@ const baseNavItems = [
   { to: '/roadmaps', icon: Map, label: 'Roadmaps' },
   { to: '/ai-tutor', icon: Bot, label: 'AI Tutor' },
   { to: '/games', icon: Gamepad2, label: 'Games' },
-  { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
+  { to: '/interview-prep', icon: Briefcase, label: 'Interview Prep' },
   { to: '/profile', icon: User, label: 'Profile' },
 ]
 
