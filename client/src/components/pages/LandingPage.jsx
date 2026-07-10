@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useAuthStore } from '../../store/authStore'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
-import { Zap, Compass, PlayCircle, BookOpen, Bot, Award, ShieldCheck, ArrowRight } from 'lucide-react'
+import { Zap, Compass, PlayCircle, BookOpen, Bot, Trophy, ShieldCheck, ArrowRight } from 'lucide-react'
 
 export default function LandingPage() {
   const { user } = useAuthStore()
@@ -64,7 +64,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-sm md:text-base font-bold text-black/75 max-w-lg leading-relaxed">
-              BrainForge is a unified learning experience powered by Gemini & Groq. Discover your career path, study curated video syllabus tracks, and practice with real-time AI tutor guidance.
+              BrainForge is a unified, AI-powered learning platform. Discover your career path through our custom assessment, learn using personalized timeline roadmaps, reinforce knowledge with brain games, get real-time help from our AI Tutor, and explore a catalog of premium courses.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -73,35 +73,48 @@ export default function LandingPage() {
                   Start Your Journey <ArrowRight size={16} className="ml-1.5" />
                 </Button>
               </Link>
+              <Link to="/courses">
+                <Button variant="secondary" className="text-sm font-black uppercase px-6 py-3.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white hover:bg-brutal-cream">
+                  Browse Premium Courses
+                </Button>
+              </Link>
             </div>
           </div>
 
           {/* Hero Decorative Card */}
           <div className="relative">
             <div className="absolute inset-0 bg-black rounded-2xl translate-x-3 translate-y-3" />
-            <div className="border-[3px] border-black bg-white p-6 md:p-8 rounded-2xl relative z-10 space-y-6">
+            <div className="border-[3px] border-black bg-white p-6 md:p-8 rounded-2xl relative z-10 space-y-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-brutal-purple border-2 border-black flex items-center justify-center font-black">
                   🤖
                 </div>
                 <div>
-                  <h3 className="text-sm font-black uppercase leading-tight">AI Assessment Center</h3>
-                  <span className="text-[10px] font-mono font-bold text-black/55">RECOMMENDED PATHS GENERATION</span>
+                  <h3 className="text-sm font-black uppercase leading-tight">AI & Tech Learning Hub</h3>
+                  <span className="text-[10px] font-mono font-bold text-black/55">ACTIVE MODULES & UTILITIES</span>
                 </div>
               </div>
 
-              <div className="space-y-3.5">
-                <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between bg-brutal-cream/25">
+              <div className="space-y-2.5">
+                <div className="border-2 border-black p-2.5 rounded-lg flex items-center justify-between bg-brutal-cream/25">
                   <span className="text-xs font-black uppercase">1. AI Career Discovery</span>
-                  <span className="text-[9px] font-mono font-black text-green-700 bg-green-100 border border-green-400 px-1.5 py-0.5 rounded">READY</span>
-                </div>
-                <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between bg-brutal-cream/25">
-                  <span className="text-xs font-black uppercase">2. Curated Syllabuses</span>
-                  <span className="text-[9px] font-mono font-black text-green-700 bg-green-100 border border-green-400 px-1.5 py-0.5 rounded">120+ VIDEOS</span>
-                </div>
-                <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between bg-brutal-cream/25">
-                  <span className="text-xs font-black uppercase">3. Real-Time AI Tutor console</span>
                   <span className="text-[9px] font-mono font-black text-green-700 bg-green-100 border border-green-400 px-1.5 py-0.5 rounded">ONLINE</span>
+                </div>
+                <div className="border-2 border-black p-2.5 rounded-lg flex items-center justify-between bg-brutal-cream/25">
+                  <span className="text-xs font-black uppercase">2. Personalized Roadmaps</span>
+                  <span className="text-[9px] font-mono font-black text-green-700 bg-green-100 border border-green-400 px-1.5 py-0.5 rounded">CURRICULUM</span>
+                </div>
+                <div className="border-2 border-black p-2.5 rounded-lg flex items-center justify-between bg-brutal-cream/25">
+                  <span className="text-xs font-black uppercase">3. Interactive Brain Games</span>
+                  <span className="text-[9px] font-mono font-black text-green-700 bg-green-100 border border-green-400 px-1.5 py-0.5 rounded">QUIZ & MATCH</span>
+                </div>
+                <div className="border-2 border-black p-2.5 rounded-lg flex items-center justify-between bg-brutal-cream/25">
+                  <span className="text-xs font-black uppercase">4. AI Tutor Doubt Solver</span>
+                  <span className="text-[9px] font-mono font-black text-green-700 bg-green-100 border border-green-400 px-1.5 py-0.5 rounded">24/7 SUPPORT</span>
+                </div>
+                <div className="border-2 border-black p-2.5 rounded-lg flex items-center justify-between bg-brutal-cream/25">
+                  <span className="text-xs font-black uppercase">5. Premium Paid Courses</span>
+                  <span className="text-[9px] font-mono font-black text-green-700 bg-green-100 border border-green-400 px-1.5 py-0.5 rounded">CATALOG</span>
                 </div>
               </div>
             </div>
@@ -115,7 +128,7 @@ export default function LandingPage() {
             Powerful Learning Ecosystem
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             <Card hover bg="#FFFFFF" className="p-6 border-3 border-black space-y-4">
               <div className="w-11 h-11 rounded-xl border-2 border-black bg-brutal-yellow flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
@@ -123,7 +136,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-base font-black uppercase tracking-wide">AI Career Discovery</h3>
               <p className="text-xs text-black/75 font-semibold leading-relaxed">
-                Take an assessment to analyze your natural skills and interests, receiving 3 tailored technical pathways to pursue.
+                Take an interactive skill assessment to analyze your natural skills and interests, receiving 3 customized technical pathways.
               </p>
             </Card>
 
@@ -131,9 +144,9 @@ export default function LandingPage() {
               <div className="w-11 h-11 rounded-xl border-2 border-black bg-brutal-pink flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
                 <PlayCircle size={20} className="text-black" />
               </div>
-              <h3 className="text-base font-black uppercase tracking-wide">160+ Curated Playlists</h3>
+              <h3 className="text-base font-black uppercase tracking-wide">Personalized Roadmaps</h3>
               <p className="text-xs text-black/75 font-semibold leading-relaxed">
-                Learn with 10-15 top-tier video tutorials for HTML5, CSS3, JavaScript, Python, DSA, Machine Learning, and SQL.
+                Follow step-by-step roadmap paths containing curated learning modules, free video checklists, and progress indicators.
               </p>
             </Card>
 
@@ -143,7 +156,27 @@ export default function LandingPage() {
               </div>
               <h3 className="text-base font-black uppercase tracking-wide">AI Tutor & Study Tools</h3>
               <p className="text-xs text-black/75 font-semibold leading-relaxed">
-                Unlock AI summaries, flashcard review decks, interactive quizzes, and coding challenges on module completions.
+                Unlock AI-generated summaries, spaced-repetition flashcards, and coding challenge doubt solver in real time.
+              </p>
+            </Card>
+
+            <Card hover bg="#FFFFFF" className="p-6 border-3 border-black space-y-4">
+              <div className="w-11 h-11 rounded-xl border-2 border-black bg-brutal-green flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
+                <Trophy size={20} className="text-black" />
+              </div>
+              <h3 className="text-base font-black uppercase tracking-wide">Interactive Brain Games</h3>
+              <p className="text-xs text-black/75 font-semibold leading-relaxed">
+                Gamify your learning and retention with customized Memory Matching and comprehensive Topic Quizzes.
+              </p>
+            </Card>
+
+            <Card hover bg="#FFFFFF" className="p-6 border-3 border-black space-y-4 md:col-span-2 lg:col-span-1">
+              <div className="w-11 h-11 rounded-xl border-2 border-black bg-brutal-blue flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
+                <BookOpen size={20} className="text-black" />
+              </div>
+              <h3 className="text-base font-black uppercase tracking-wide">Premium Paid Courses</h3>
+              <p className="text-xs text-black/75 font-semibold leading-relaxed">
+                Explore hand-picked premium courses, cohorts, and bootcamps from industry leaders to advance your skillset.
               </p>
             </Card>
 
