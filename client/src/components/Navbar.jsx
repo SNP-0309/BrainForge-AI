@@ -81,7 +81,7 @@ export default function Navbar({ onAiToggle }) {
       {/* Title / Branding */}
       <div>
         <span className="font-mono text-[10px] font-black text-black/55 uppercase tracking-wider">
-          BRAINFORGE LEARNING PLATFORM
+          AI CAREER GUIDANCE
         </span>
       </div>
 

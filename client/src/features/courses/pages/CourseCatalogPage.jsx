@@ -38,26 +38,26 @@ export default function CourseCatalogPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-[3px] border-black bg-white p-6 md:p-8 rounded-2xl shadow-brutal">
         <div className="flex-1">
           <div className="inline-flex items-center gap-2 bg-brutal-pink border-2 border-black px-3.5 py-1 text-xs font-black uppercase rounded-lg shadow-[2.5px_2.5px_0px_0px_#000] mb-4">
-            <ShieldCheck size={14} /> Verified Premium Content
+            <ShieldCheck size={14} /> Expert-Curated Resources
           </div>
           <h1 className="text-3xl md:text-5xl font-black uppercase tracking-wide leading-none">
-            Premium Paid Courses
+            Curated Course Recommendations
           </h1>
           <p className="text-sm md:text-base font-bold text-black/75 mt-3 max-w-2xl">
-            Level up your career with the absolute best paid courses, bootcamps, and cohorts from industry giants and top-tier instructors.
+            Discover the best courses, bootcamps, and learning resources hand-picked by experts to guide your tech career forward.
           </p>
         </div>
 
         <div className="bg-brutal-yellow border-2 border-black px-4 py-3 rounded-xl shadow-[3px_3px_0px_0px_#000] text-center min-w-[120px] shrink-0">
-          <span className="text-xs font-mono font-bold block opacity-70">COHORT PARTNERS</span>
-          <span className="text-sm font-black block uppercase">Udemy & Live Batches</span>
+          <span className="text-xs font-mono font-bold block opacity-70">LEARNING PLATFORMS</span>
+          <span className="text-sm font-black block uppercase">Udemy & More</span>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
-          <Input icon={Search} placeholder="Search paid courses by title, instructor, or technology..." value={search} onChange={e => setSearch(e.target.value)} />
+          <Input icon={Search} placeholder="Search recommended courses by title, instructor, or technology..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <select
           value={difficulty}
@@ -77,7 +77,7 @@ export default function CourseCatalogPage() {
           <SkeletonLoader className="h-56" count={6} />
         </div>
       ) : !data?.courses?.length ? (
-        <EmptyState icon={BookOpen} title="No paid courses found" description="Try adjusting your search query or level filters" />
+        <EmptyState icon={BookOpen} title="No courses found" description="Try adjusting your search query or level filters" />
       ) : (
         <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {data.courses.map(course => {
@@ -165,7 +165,7 @@ export default function CourseCatalogPage() {
                           className="w-full text-xs font-black py-2.5 flex items-center justify-center gap-1"
                           bg="#4ADE80"
                         >
-                          Enroll Now <ExternalLink size={12} />
+                          Start Learning <ExternalLink size={12} />
                         </Button>
                       </a>
                     </div>

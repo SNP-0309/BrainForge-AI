@@ -224,7 +224,7 @@ export default function MemoryMatchPage() {
                       ) : (
                         <div className="flex flex-col items-center justify-center gap-2">
                           <Gamepad2 className="w-8 h-8 text-black group-hover:scale-110 transition-transform" />
-                          <span className="text-[10px] font-mono font-black text-black/75 uppercase tracking-wider">BrainForge</span>
+                          <span className="text-[10px] font-mono font-black text-black/75 uppercase tracking-wider">AI Career</span>
                         </div>
                       )}
                     </div>

@@ -47,7 +47,7 @@ export default function Sidebar({ open, onToggle }) {
               exit={{ opacity: 0, x: -10 }}
               className="font-black text-black text-sm uppercase tracking-wider whitespace-nowrap"
             >
-              BrainForge AI
+              AI Career Guidance
             </motion.span>
           )}
         </AnimatePresence>

@@ -67,7 +67,7 @@ export default function GamesHubPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black uppercase tracking-wider flex items-center gap-3">
-            BrainForge Games Hub <Gamepad2 className="w-8 h-8 text-brutal-pink" />
+            AI Career Guidance Games Hub <Gamepad2 className="w-8 h-8 text-brutal-pink" />
           </h1>
           <p className="text-sm font-bold text-black/70 mt-2">
             Practice, reinforce core concepts, and level up your skills through interactive games and quizzes.

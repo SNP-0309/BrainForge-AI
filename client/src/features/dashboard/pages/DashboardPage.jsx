@@ -48,7 +48,7 @@ export default function DashboardPage() {
             Welcome back, <span className="bg-brutal-yellow px-2 py-0.5 border border-black rounded-lg">{user?.name?.split(' ')[0] ?? 'Learner'}</span> 👋
           </h1>
           <p className="text-xs md:text-sm text-black/75 font-bold">
-            Explore premium courses, discover custom learning paths, and build real-world software skills.
+            Discover the best learning resources, follow your personalized roadmap, and master new skills with expert-curated guidance.
           </p>
         </div>
 
@@ -76,7 +76,7 @@ export default function DashboardPage() {
         {/* Recent Courses */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black uppercase text-black">Explore Paid Courses</h2>
+            <h2 className="text-xl font-black uppercase text-black">Recommended Learning Resources</h2>
             <Button size="sm" variant="secondary" onClick={() => navigate('/courses')}>
               View all →
             </Button>
@@ -128,10 +128,10 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Top Cohort Members */}
+        {/* Fellow Learners */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black uppercase text-black font-mono">Cohort Members</h2>
+            <h2 className="text-xl font-black uppercase text-black font-mono">Fellow Learners</h2>
           </div>
 
           <Card className="space-y-4 bg-white p-5 border-3 border-black">
