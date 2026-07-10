@@ -59,7 +59,7 @@ export default function ProfilePage() {
               <Compass size={18} /> Career Direction
             </h2>
             <p className="text-xs font-bold text-black/85 leading-relaxed">
-              Your chosen learning pathway is currently configured. This will align your roadmap, study materials, and premium course recomendations.
+              Your chosen learning pathway is currently configured. This will align your roadmap, study materials, and learning resource recommendations.
             </p>
           </div>
 

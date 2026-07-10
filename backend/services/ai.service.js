@@ -408,7 +408,7 @@ Return ONLY valid JSON.`;
     if (this.isMock) return `[Mock Gemini]: You asked: "${messages[messages.length - 1]?.content}". This is a mock AI response.`;
     try {
       const model = await this._textModel();
-      const systemInstruction = systemContext || 'You are BrainForge AI, a world-class educational AI tutor. Explain concepts clearly, use examples, and maintain an encouraging teaching tone.';
+      const systemInstruction = systemContext || 'You are AI Career Guidance, a world-class educational guide and tutor. Help students understand concepts clearly, recommend the best learning resources and channels, use examples, and maintain an encouraging teaching tone.';
       const history = messages.slice(0, -1).map(m => ({
         role: m.sender === 'user' ? 'user' : 'model',
         parts: [{ text: m.content }],
@@ -653,7 +653,7 @@ Return ONLY valid JSON.`;
 
   async chat(messages, systemContext = '') {
     if (this.isMock) return `[Mock Groq]: You asked: "${messages[messages.length - 1]?.content}". This is a mock response.`;
-    const systemMsg = systemContext || 'You are BrainForge AI, an expert educational tutor. Explain concepts clearly with examples, code snippets where relevant, and an encouraging tone. Keep responses concise but thorough.';
+    const systemMsg = systemContext || 'You are AI Career Guidance, an expert educational guide and tutor. Help students understand concepts clearly, recommend the best learning resources, use code snippets where relevant, and maintain an encouraging tone. Keep responses concise but thorough.';
     const formattedMessages = [
       { role: 'system', content: systemMsg },
       ...messages.map(m => ({

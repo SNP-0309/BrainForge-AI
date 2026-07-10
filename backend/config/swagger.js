@@ -4,9 +4,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'BrainForge AI REST API Docs',
+      title: 'AI Career Guidance REST API Docs',
       version: '1.0.0',
-      description: 'Production-ready REST API documentation for BrainForge AI learning platform',
+      description: 'REST API documentation for AI Career Guidance — your AI-powered learning guide platform',
     },
     servers: [
       {
