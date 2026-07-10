@@ -123,31 +123,38 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Fellow Learners */}
+        {/* Career Readiness */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black uppercase text-black font-mono">Fellow Learners</h2>
+            <h2 className="text-xl font-black uppercase text-black font-mono">Career Readiness</h2>
           </div>
 
-          <Card className="space-y-4 bg-white p-5 border-3 border-black">
-            {lbLoading ? (
-              <SkeletonLoader className="h-10" count={5} />
-            ) : (
-              leaderboardData?.map((u, i) => (
-                <div key={u._id} className="flex items-center gap-3.5 pb-3 border-b border-black/10 last:border-0 last:pb-0">
-                  <span className="text-xs font-black w-5 text-center text-black/70 font-mono">
-                    #{i + 1}
-                  </span>
-                  <div className="w-8 h-8 rounded-full bg-brutal-purple border-2 border-black flex items-center justify-center text-black text-xs font-black shrink-0 shadow-[1px_1px_0px_0px_#000]">
-                    {u.name?.[0]?.toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-black text-black truncate uppercase">{u.name}</p>
-                    <p className="text-[9px] font-mono font-black text-black/55 uppercase">{u.role || 'Member'}</p>
-                  </div>
+          <Card className="bg-brutal-purple p-5 border-3 border-black space-y-4 shadow-brutal flex flex-col justify-between h-[300px]">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
+                  <Briefcase size={16} className="text-black" />
                 </div>
-              ))
-            )}
+                <h3 className="text-sm font-black uppercase text-black">AI Interview Coach</h3>
+              </div>
+              <p className="text-[11px] text-black/85 font-bold leading-relaxed">
+                Practice simulated technical, behavioral, and coding interviews. Get instant score breakdowns, strengths, improvements, and reference answers.
+              </p>
+              <div className="bg-white border-2 border-black p-2.5 rounded-lg shadow-[1.5px_1.5px_0px_0px_#000]">
+                <span className="text-[9px] font-mono font-black text-black/50 uppercase block">RESUME ATS SCORING</span>
+                <p className="text-[10px] font-bold text-black/80 leading-snug mt-0.5">
+                  Upload your CV/Resume PDF to calculate ATS compatibility scoring.
+                </p>
+              </div>
+            </div>
+
+            <Button 
+              onClick={() => navigate('/interview-prep')} 
+              bg="#FFE600" 
+              className="w-full justify-center flex items-center gap-1 text-xs py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mt-2"
+            >
+              Start Prep Now <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
           </Card>
         </div>
 
