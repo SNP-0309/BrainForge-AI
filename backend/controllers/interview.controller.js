@@ -1,6 +1,7 @@
 const Interview = require('../models/interview.model');
 const InterviewQuestionBank = require('../models/interview-question-bank.model');
 const Resume = require('../models/resume.model');
+const pdfParse = require('pdf-parse');
 const aiService = require('../services/ai.service');
 const storageService = require('../services/storage.service');
 const sendResponse = require('../utils/ResponseWrapper');
@@ -246,11 +247,11 @@ const getInterviewById = async (req, res, next) => {
 const getInterviewQuestions = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, category, role, company, difficulty, search } = req.query;
-    const query = { isPublic: true };
-    if (category) query.category = category;
-    if (role) query.role = new RegExp(role, 'i');
-    if (company) query.company = company.toLowerCase();
-    if (difficulty) query.difficulty = difficulty;
+    const query = { isPublic: { $ne: false } };
+    if (category && category !== 'all') query.category = category;
+    if (role && role !== 'all') query.role = new RegExp(role, 'i');
+    if (company && company !== 'all') query.company = company.toLowerCase();
+    if (difficulty && difficulty !== 'all') query.difficulty = difficulty;
     if (search) query.question = new RegExp(search, 'i');
 
     const skip = (page - 1) * limit;
@@ -294,6 +295,7 @@ const generateInterviewQuestions = async (req, res, next) => {
         tips: q.tips || '',
         source: 'ai-generated',
         createdBy: req.user._id,
+        isPublic: true,
       }));
       await InterviewQuestionBank.insertMany(toInsert, { ordered: false });
     }
@@ -315,6 +317,18 @@ const uploadResume = async (req, res, next) => {
     // Validate file
     storageService.constructor.validateFile(req.file, 'pdf', 10);
 
+    // Extract text from the PDF buffer using pdf-parse
+    let extractedText = '';
+    try {
+      const u8 = new Uint8Array(req.file.buffer.buffer, req.file.buffer.byteOffset, req.file.buffer.byteLength);
+      const parser = new pdfParse.PDFParse(u8);
+      const pdfData = await parser.getText();
+      extractedText = pdfData.text || '';
+    } catch (parseErr) {
+      console.error(`PDF text extraction failed: ${parseErr.message}`);
+      extractedText = 'Unable to parse PDF text.';
+    }
+
     // Upload to Firebase Storage
     const fileUrl = await storageService.uploadMulterFile(
       req.file, 'resumes', req.user._id.toString()
@@ -326,6 +340,7 @@ const uploadResume = async (req, res, next) => {
       fileUrl,
       fileName: req.file.originalname,
       fileSize: req.file.size,
+      extractedText,
     });
 
     sendResponse(res, 201, 'Resume uploaded. Use /analyze to get AI feedback.', {

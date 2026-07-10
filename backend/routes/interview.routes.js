@@ -26,13 +26,6 @@ const upload = multer({
 // All routes require authentication
 router.use(protect);
 
-// ─── SESSIONS ─────────────────────────────────
-router.get('/', getMyInterviews);
-router.post('/start', validate(startInterviewSchema), startInterview);
-router.post('/:id/respond', validate(respondToInterviewSchema), respondToInterview);
-router.post('/:id/feedback', generateFeedback);
-router.get('/:id', getInterviewById);
-
 // ─── QUESTION BANK ────────────────────────────
 router.get('/questions', getInterviewQuestions);
 router.post('/questions/generate', validate(generateInterviewQuestionsSchema), generateInterviewQuestions);
@@ -41,6 +34,13 @@ router.post('/questions/generate', validate(generateInterviewQuestionsSchema), g
 router.get('/resume', getMyResumes);
 router.post('/resume/upload', upload.single('resume'), uploadResume);
 router.post('/resume/:id/analyze', validate(analyzeResumeSchema), analyzeResume);
+
+// ─── SESSIONS ─────────────────────────────────
+router.get('/', getMyInterviews);
+router.post('/start', validate(startInterviewSchema), startInterview);
+router.post('/:id/respond', validate(respondToInterviewSchema), respondToInterview);
+router.post('/:id/feedback', generateFeedback);
+router.get('/:id', getInterviewById);
 
 module.exports = router;
 

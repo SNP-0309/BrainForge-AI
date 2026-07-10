@@ -37,6 +37,57 @@ const mockRoadmap = (topic) => [
   { id: 'node_5', label: `${topic} Project Milestone`, type: 'milestone', status: 'locked', dependencies: ['node_4'] },
 ];
 
+const getMockQuestions = (role, interviewType) => {
+  const normRole = (role || '').toLowerCase();
+  let qs = [];
+  if (normRole.includes('frontend') || normRole.includes('react') || normRole.includes('web')) {
+    qs = [
+      { question: 'What is the Virtual DOM and how does React use it to optimize rendering?', category: interviewType || 'technical', difficulty: 'medium', sampleAnswer: 'React maintains a lightweight representation of the real DOM in memory and diffs it with the actual DOM, applying only the necessary changes.', followUpQuestions: ['What is the reconciliation process?', 'How do keys help in lists?'], tips: 'Explain reconciliation and the diffing algorithm.' },
+      { question: 'Explain the difference between state and props in React.', category: interviewType || 'technical', difficulty: 'easy', sampleAnswer: 'State is local data managed within the component itself (mutable), whereas props are configuration data passed down from parent components (immutable).', followUpQuestions: ['How do you pass data from child to parent?'], tips: 'Mention mutability and data flow.' },
+      { question: 'What are React Hooks and what rules must they follow?', category: interviewType || 'technical', difficulty: 'medium', sampleAnswer: 'Hooks are functions that let you "hook into" React state and lifecycle features from function components. They must only be called at the top level and from React function components.', followUpQuestions: ['What is the purpose of useEffect?', 'How does custom hook creation work?'], tips: 'Mention the top-level calling rule.' }
+    ];
+  } else if (normRole.includes('backend') || normRole.includes('node') || normRole.includes('database') || normRole.includes('sql')) {
+    qs = [
+      { question: 'What is database normalization and why is it important?', category: interviewType || 'technical', difficulty: 'medium', sampleAnswer: 'Database normalization is the process of structuring a relational database to reduce data redundancy and improve data integrity.', followUpQuestions: ['Explain the difference between 2NF and 3NF.', 'What are foreign key constraints?'], tips: 'Explain 1NF, 2NF, and 3NF rules.' },
+      { question: 'Explain the event loop in Node.js.', category: interviewType || 'technical', difficulty: 'hard', sampleAnswer: 'The event loop allows Node.js to perform non-blocking I/O operations by offloading operations to the system kernel whenever possible.', followUpQuestions: ['What is the call stack?', 'How does libuv fit in?'], tips: 'Mention call stack, callback queue, and microtask queue.' },
+      { question: 'What is the difference between SQL and NoSQL databases?', category: interviewType || 'technical', difficulty: 'easy', sampleAnswer: 'SQL databases are relational, table-based, and use structured schemas. NoSQL databases are non-relational, document-based, key-value, graph, or wide-column, and have dynamic schemas.', followUpQuestions: ['When would you choose NoSQL over SQL?', 'What is vertical vs horizontal scaling?'], tips: 'Mention ACID vs BASE properties.' }
+    ];
+  } else {
+    qs = [
+      { question: 'What is time complexity and how do you calculate Big O?', category: interviewType || 'technical', difficulty: 'medium', sampleAnswer: 'Big O notation characterizes the execution time or space requirements of an algorithm based on the input size N.', followUpQuestions: ['What is the difference between O(log N) and O(N log N)?', 'Give an example of O(N^2) complexity.'], tips: 'Use sorting algorithms like bubble sort and merge sort as examples.' },
+      { question: 'What is the difference between an Abstract Class and an Interface?', category: interviewType || 'technical', difficulty: 'medium', sampleAnswer: 'An abstract class can contain concrete methods with implementations, while an interface only defines method signatures (contracts) that implementing classes must satisfy.', followUpQuestions: ['Can a class implement multiple interfaces?', 'When should you use an abstract class?'], tips: 'Mention inheritance and contract systems.' },
+      { question: 'Describe how a RESTful API works.', category: interviewType || 'technical', difficulty: 'easy', sampleAnswer: 'REST is an architectural style for network-based applications. It uses stateless communication and standard HTTP methods (GET, POST, PUT, DELETE) to manipulate resources.', followUpQuestions: ['What are status codes 401 and 403?', 'What is statelessness in REST?'], tips: 'Explain resource-based URI structure.' }
+    ];
+  }
+  return qs;
+};
+
+const getMockResumeAnalysis = (resumeText, jobDescription) => {
+  const SKILLS_BANK = ['javascript', 'typescript', 'react', 'node', 'express', 'mongodb', 'sql', 'python', 'java', 'html', 'css', 'git', 'docker', 'aws', 'kubernetes', 'c++', 'angular', 'vue'];
+  const textLower = (resumeText || '').toLowerCase();
+  const matched = SKILLS_BANK.filter(skill => textLower.includes(skill));
+  const missing = SKILLS_BANK.filter(skill => !textLower.includes(skill)).slice(0, 3);
+  const atsScore = Math.min(60 + matched.length * 6, 95);
+  const jobMatchScore = Math.min(55 + matched.length * 7, 92);
+  const sectionFeedback = {
+    summary: matched.length > 0 ? `Summary successfully highlights core competencies in ${matched.slice(0, 3).join(', ')}.` : 'Consider updating your summary to feature primary tech keywords and target career achievements.',
+    experience: 'Solid description of responsibilities. We suggest quantifying results (e.g. "improved database query speed by 25%").',
+    skills: `Matched keywords: ${matched.join(', ')}. Missing key skills for modern roles: ${missing.join(', ')}.`,
+    education: 'Clear credentials listed.',
+    projects: 'Good project descriptions. Highlight your individual contributions and technical challenges overcome.',
+    overall: `Analyzed resume text (${(resumeText || '').length} characters parsed). Good technical foundation. Matched skills: ${matched.join(', ')}.`
+  };
+  const suggestedQuestions = matched.length > 0 ? matched.slice(0, 3).map(skill => `Can you explain a complex project where you utilized ${skill} and how you structured the solution?`) : ['Can you walk me through your background and the tech stack you are most comfortable with?'];
+  return {
+    atsScore,
+    keywordMatch: { matched, missing, score: matched.length * 10 },
+    sectionFeedback,
+    jobMatchScore,
+    suggestedQuestions,
+    improvements: ['Quantify project metrics', 'Add missing skills to resume keywords section', 'Shorten summary bullet points']
+  };
+};
+
 const REAL_QUESTIONS = {
   javascript: [
     { questionText: 'Which of the following is NOT a JavaScript data type?', options: ['float', 'boolean', 'symbol', 'undefined'], correctAnswerIndex: 0, explanation: 'JavaScript has numbers (which represent both integers and floats), but does not have a separate "float" type.' },
@@ -188,12 +239,72 @@ const mockQuiz = (topic, count = 5, difficulty = 'medium') => {
   });
 };
 
-const mockFlashcards = (topic, count) =>
-  Array.from({ length: count }, (_, i) => ({
-    front: `What is concept ${i + 1} of ${topic}?`,
-    back: `Concept ${i + 1} of ${topic} refers to a fundamental principle used in learning.`,
-    hint: `Think about the basics.`,
-  }));
+const mockFlashcards = (topic, count = 6) => {
+  const normTopic = (topic || '').toLowerCase();
+  let cards = [];
+  
+  if (normTopic.includes('javascript') || normTopic.includes('js')) {
+    cards = [
+      { front: 'Closure', back: 'A function that remembers and accesses its lexical scope even when executed outside that scope.', hint: 'Lexical scope memory' },
+      { front: 'Promise', back: 'An object representing the eventual completion or failure of an asynchronous operation.', hint: 'Async placeholder' },
+      { front: 'Hoisting', back: 'JavaScript\'s default behavior of moving declarations to the top of the current scope before execution.', hint: 'Declaration lift' },
+      { front: 'Event Loop', back: 'The mechanism that handles asynchronous callbacks, moving them from task queue to call stack.', hint: 'Single-thread coordinator' },
+      { front: 'Prototype', back: 'The mechanism by which JavaScript objects inherit features and properties from one another.', hint: 'Inheritance link' },
+      { front: 'Scope', back: 'The current context of execution in which values and expressions are visible or referenced.', hint: 'Visibility boundary' }
+    ];
+  } else if (normTopic.includes('react')) {
+    cards = [
+      { front: 'State', back: 'An object held within a component that stores dynamic data and triggers re-renders when updated.', hint: 'Local component data' },
+      { front: 'Props', back: 'Immutable configuration properties passed down from a parent component to a child component.', hint: 'Input parameters' },
+      { front: 'useEffect', back: 'A hook designed to run side-effects (e.g. data fetching, subscriptions) in functional components.', hint: 'Side-effect hook' },
+      { front: 'Virtual DOM', back: 'A lightweight JavaScript copy of the real DOM used to calculate and batch UI updates efficiently.', hint: 'In-memory DOM copy' },
+      { front: 'Reconciliation', back: 'React\'s algorithm to compare the new Virtual DOM with the old one and apply changes.', hint: 'Diffing algorithm' },
+      { front: 'JSX', back: 'A syntax extension to JavaScript that allows writing HTML-like structures directly in React code.', hint: 'JavaScript XML' }
+    ];
+  } else if (normTopic.includes('python')) {
+    cards = [
+      { front: 'Decorator', back: 'A function that takes another function as an argument, extending its behavior without modifying it.', hint: 'Function wrapper' },
+      { front: 'Generator', back: 'A function that yields values sequentially using the yield keyword, saving memory.', hint: 'Yield iterator' },
+      { front: 'List Comprehension', back: 'A concise syntax to construct lists from existing lists or iterables.', hint: 'Inline loop list' },
+      { front: 'PEP 8', back: 'The official style guide rules for writing clean, readable Python code.', hint: 'Style standard' },
+      { front: 'GIL', back: 'Global Interpreter Lock; a mutex that limits execution to only one thread at a time in CPython.', hint: 'Thread constraint' },
+      { front: 'Tuple', back: 'An immutable, ordered collection of elements defined using parentheses.', hint: 'Fixed list' }
+    ];
+  } else if (normTopic.includes('database') || normTopic.includes('sql') || normTopic.includes('normalization')) {
+    cards = [
+      { front: 'Primary Key', back: 'A unique identifier constraint for each record in a relational database table.', hint: 'Unique ID' },
+      { front: 'Foreign Key', back: 'A column constraint that links tables together by referencing the primary key of another table.', hint: 'Table relationship' },
+      { front: 'Index', back: 'A data structure that improves the speed of data retrieval operations on a database table.', hint: 'Search accelerator' },
+      { front: 'Normalization', back: 'Structuring database tables to minimize redundancy and prevent dependency anomalies.', hint: 'Schema optimization' },
+      { front: 'Transaction', back: 'A sequence of database operations treated as a single atomic unit of work.', hint: 'All-or-nothing action' },
+      { front: 'JOIN', back: 'An operation used to combine rows from two or more tables based on a related column.', hint: 'Table combiner' }
+    ];
+  } else if (normTopic.includes('git') || normTopic.includes('branch')) {
+    cards = [
+      { front: 'Commit', back: 'A saved snapshot of changes recorded permanently in the repository history.', hint: 'Version snapshot' },
+      { front: 'Staging Area', back: 'An intermediate area where changes are prepped and selected before being committed.', hint: 'Index space' },
+      { front: 'Merge', back: 'Combining changes from one branch into another, resolving any file conflicts.', hint: 'Branch combiner' },
+      { front: 'Rebase', back: 'Rewriting branch history by applying commits on top of another base tip.', hint: 'History linearizer' },
+      { front: 'Stash', back: 'Temporarily shelving local changes to work on another task without committing.', hint: 'Shelf space' },
+      { front: 'Clone', back: 'Downloading a copy of an existing remote repository onto your local system.', hint: 'Local downloader' }
+    ];
+  } else {
+    cards = [
+      { front: 'Big O Notation', back: 'Mathematical notation describing the limiting behavior of an algorithm execution time or space.', hint: 'Scale indicator' },
+      { front: 'API', back: 'Application Programming Interface; a set of protocols enabling different systems to communicate.', hint: 'System interface' },
+      { front: 'HTTP', back: 'Hypertext Transfer Protocol; the protocol used for transmitting data across the World Wide Web.', hint: 'Web transport' },
+      { front: 'Caching', back: 'Storing copies of data temporarily in high-speed storage to satisfy future requests faster.', hint: 'Speed buffer' },
+      { front: 'CI/CD', back: 'Continuous Integration & Continuous Deployment; practices automating code builds, tests, and releases.', hint: 'Automation pipeline' },
+      { front: 'DNS', back: 'Domain Name System; the service translating human-readable hostnames to numerical IP addresses.', hint: 'Internet address book' }
+    ];
+  }
+  
+  let result = [];
+  for (let i = 0; i < count; i++) {
+    result.push(cards[i % cards.length]);
+  }
+  return result;
+};
 
 const mockNotes = (title) => `# Study Notes: ${title}\n\n## Core Concepts\nMock notes for **${title}**.\n\n## Key Takeaways\n- Concept 1\n- Concept 2\n\n## Flashcards\n- **Q:** What is ${title}?\n  **A:** A fundamental topic in learning.`;
 
@@ -210,8 +321,8 @@ class GeminiProvider extends BaseAIProvider {
   constructor() {
     super('gemini');
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      logger.warn('GEMINI_API_KEY not set. Gemini will run in mock mode.');
+    if (!apiKey || !apiKey.startsWith('AIzaSy')) {
+      logger.warn('GEMINI_API_KEY is missing or invalid. Gemini will run in mock mode.');
       this.isMock = true;
     } else {
       this.genAI = new GoogleGenerativeAI(apiKey);
@@ -368,6 +479,9 @@ Return ONLY valid JSON.`;
   }
 
   async generateInterviewQuestions(config) {
+    if (this.isMock) {
+      return getMockQuestions(config.role, config.interviewType);
+    }
     const { role = 'SDE', interviewType = 'technical', count = 10, company = '' } = config;
     const companyCtx = company ? ` for ${company}` : '';
     return this._safeJsonGenerate(
@@ -408,6 +522,9 @@ Return ONLY valid JSON.`;
   }
 
   async analyzeResume(resumeText, jobDescription = '') {
+    if (this.isMock) {
+      return getMockResumeAnalysis(resumeText, jobDescription);
+    }
     const jdCtx = jobDescription ? `\nJob Description: ${jobDescription}` : '';
     return this._safeJsonGenerate(
       `Analyze this resume for ATS compatibility and quality:${jdCtx}\nResume Text:\n${resumeText.slice(0, 3000)}\n\nReturn JSON: {"atsScore":85,"keywordMatch":{"matched":["..."],"missing":["..."]},"sectionFeedback":{"summary":"...","experience":"...","skills":"...","education":"...","overall":"..."},"jobMatchScore":80,"suggestedQuestions":["..."],"improvements":["..."]}`,
@@ -442,9 +559,27 @@ Return ONLY valid JSON.`;
   }
 
   async interviewChat(messages, sessionConfig = {}) {
+    if (this.isMock) {
+      const qIndex = sessionConfig.currentQuestion || 0;
+      const role = sessionConfig.role || 'Software Engineer';
+      const mockQuestions = [
+        `Hello! Welcome to the mock interview for the ${role} position. To start off, could you please introduce yourself and walk me through your background?`,
+        `Thank you for sharing. Could you describe a challenging technical problem you solved recently and how you approached it?`,
+        `Great. How do you approach designing scalable systems or structuring code for maintainability?`,
+        `Understood. Tell me about a time you had a disagreement with a team member or stakeholder and how you resolved it.`,
+        `Lastly, what is your familiarity with testing, CI/CD pipelines, and deploying applications to production?`
+      ];
+      return mockQuestions[qIndex] || "Thank you for completing the interview! We will generate your feedback now.";
+    }
     const { role = 'Software Engineer', interviewType = 'technical', company = '' } = sessionConfig;
     const companyCtx = company ? ` at ${company}` : '';
-    const systemInstruction = `You are a professional ${interviewType} interviewer conducting an interview for a ${role} position${companyCtx}. Ask one question at a time. After each candidate response, provide brief feedback, then ask the next question or a follow-up. Be professional, thorough, and adaptive to their answers. Start by greeting and asking the first question.`;
+    const systemInstruction = `You are a professional, senior ${interviewType} interviewer conducting an interview for a ${role} position${companyCtx}. 
+Your primary task is to actively listen, judge, and respond to the candidate's answers:
+1. When the candidate responds, evaluate the depth, accuracy, and completeness of their answer.
+2. Provide a 1-2 sentence direct, constructive critique of their response (e.g., 'Correct explanation of React keys, but you forgot to mention how they help in reconciliation...').
+3. Based on their answer, ask a challenging follow-up question that drills deeper into the topic they just talked about, or transition to a new topic if they answered perfectly.
+4. Do NOT simply read from a list or ask generic questions. Be highly conversational, critical, and adaptive.
+5. Ask only ONE question at a time.`;
     const formatted = messages.map(m => ({
       sender: m.role === 'candidate' ? 'user' : 'assistant',
       content: m.content
@@ -460,8 +595,8 @@ class GroqProvider extends BaseAIProvider {
   constructor() {
     super('groq');
     const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      logger.warn('GROQ_API_KEY not set. Groq will run in mock mode.');
+    if (!apiKey || !apiKey.startsWith('gsk_')) {
+      logger.warn('GROQ_API_KEY is missing or invalid. Groq will run in mock mode.');
       this.isMock = true;
     } else {
       this.client = new Groq({ apiKey });
@@ -632,6 +767,9 @@ Return ONLY valid JSON.`;
   }
 
   async generateInterviewQuestions(config) {
+    if (this.isMock) {
+      return getMockQuestions(config.role, config.interviewType);
+    }
     const { role = 'SDE', interviewType = 'technical', count = 10, company = '' } = config;
     const companyCtx = company ? ` (company: ${company})` : '';
     const result = await this._jsonComplete(
@@ -672,6 +810,9 @@ Return ONLY valid JSON.`;
   }
 
   async analyzeResume(resumeText, jobDescription = '') {
+    if (this.isMock) {
+      return getMockResumeAnalysis(resumeText, jobDescription);
+    }
     const jdCtx = jobDescription ? `\nTarget Job Description:\n${jobDescription}` : '';
     const result = await this._jsonComplete(
       'You are an expert resume coach and ATS specialist. Provide actionable, specific feedback.',
@@ -706,9 +847,26 @@ Return ONLY valid JSON.`;
   }
 
   async interviewChat(messages, sessionConfig = {}) {
+    if (this.isMock) {
+      const qIndex = sessionConfig.currentQuestion || 0;
+      const role = sessionConfig.role || 'Software Engineer';
+      const mockQuestions = [
+        `Hello! Welcome to the mock interview for the ${role} position. To start off, could you please introduce yourself and walk me through your background?`,
+        `Thank you for sharing. Could you describe a challenging technical problem you solved recently and how you approached it?`,
+        `Great. How do you approach designing scalable systems or structuring code for maintainability?`,
+        `Understood. Tell me about a time you had a disagreement with a team member or stakeholder and how you resolved it.`,
+        `Lastly, what is your familiarity with testing, CI/CD pipelines, and deploying applications to production?`
+      ];
+      return mockQuestions[qIndex] || "Thank you for completing the interview! We will generate your feedback now.";
+    }
     const { role = 'Software Engineer', interviewType = 'technical', company = '', totalQuestions = 10, currentQuestion = 0 } = sessionConfig;
     const companyCtx = company ? ` at ${company}` : '';
-    const systemMsg = `You are a professional ${interviewType} interviewer for a ${role} position${companyCtx}. You are conducting question ${currentQuestion + 1} of ${totalQuestions}. Ask one focused question, listen to the answer, give 1-2 lines of brief feedback, then ask the next question or follow-up. Be professional, adaptive, and thorough. Do NOT reveal the answer before the candidate responds.`;
+    const systemMsg = `You are a professional, senior ${interviewType} interviewer conducting an interview for a ${role} position${companyCtx}. Your primary task is to actively listen, judge, and respond to the candidate's answers:
+1. When the candidate responds, evaluate the depth, accuracy, and completeness of their answer.
+2. Provide a 1-2 sentence direct, constructive critique of their response (e.g., 'Correct explanation of React keys, but you forgot to mention how they help in reconciliation...').
+3. Based on their answer, ask a challenging follow-up question that drills deeper into the topic they just talked about, or transition to a new topic if they answered perfectly.
+4. Do NOT simply read from a list or ask generic questions. Be highly conversational, critical, and adaptive.
+5. Ask only ONE question at a time.`;
     const formattedMessages = [
       { role: 'system', content: systemMsg },
       ...messages.map(m => ({
