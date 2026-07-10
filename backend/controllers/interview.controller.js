@@ -171,10 +171,11 @@ const generateFeedback = async (req, res, next) => {
 
     const feedbackPrompt = `Evaluate this ${interview.interviewType} job interview for a ${interview.role} position.\n\nTranscript:\n${transcript}\n\nProvide detailed feedback as JSON: {"overallScore":75,"technicalScore":70,"communicationScore":80,"confidenceScore":75,"structureScore":65,"strengthPoints":["..."],"improvementPoints":["..."],"suggestedResources":["..."],"detailedFeedback":"...","questionWiseFeedback":[{"questionIndex":0,"score":70,"feedback":"...","idealAnswer":"..."}]}`;
 
-    const feedbackRaw = await aiService.evaluateAnswer(
-      'Interview Session Evaluation',
+    const feedbackRaw = await aiService.evaluateInterview(
       transcript,
-      'descriptive',
+      interview.role,
+      interview.interviewType,
+      interview.company,
       interview.aiProvider
     );
 

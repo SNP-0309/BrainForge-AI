@@ -79,7 +79,7 @@ export default function QuizPage() {
       setResults(res.data.data);
       showToast('Quiz submitted successfully!', 'success');
 
-      // Sync user profile state (XP / Coins)
+      // Sync user profile state
       const userRes = await api.get('/users/me');
       setUser(userRes.data.data);
     } catch (err) {
@@ -260,27 +260,6 @@ export default function QuizPage() {
                     {results.score} / {results.maxScore} PTS
                   </span>
                 </div>
-
-                {/* Gamification rewards */}
-                <div className="flex justify-center mt-2">
-                   <div className="bg-white border-2 border-black px-6 py-2 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-center min-w-[120px]">
-                     <p className="text-[9px] font-mono font-black text-black/50">COINS EARNED</p>
-                     <p className="text-lg font-black text-black">+{results.coinsEarned || 0}</p>
-                   </div>
-                 </div>
-
-                {/* Newly unlocked achievements */}
-                {results.newlyUnlockedAchievements && results.newlyUnlockedAchievements.length > 0 && (
-                  <div className="mt-6 bg-white border-2 border-black p-4 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-3">
-                    <span className="text-lg">🏆</span>
-                    <div className="text-left">
-                      <p className="text-[10px] font-mono font-black text-black/50">NEW ACHIEVEMENT UNLOCKED!</p>
-                      <p className="text-xs font-black uppercase text-black">
-                        {results.newlyUnlockedAchievements.map(a => a.name).join(', ')}
-                      </p>
-                    </div>
-                  </div>
-                )}
               </Card>
 
               {/* Action Buttons */}

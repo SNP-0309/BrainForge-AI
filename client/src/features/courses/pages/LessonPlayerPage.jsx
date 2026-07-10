@@ -79,7 +79,7 @@ export default function LessonPlayerPage() {
           <Zap size={20} className="text-primary shrink-0" />
           <div>
             <p className="text-sm font-semibold text-foreground">Lesson Complete! 🎉</p>
-            <p className="text-xs text-muted">+{reward.data?.data?.xpAwarded ?? 15} XP, +{reward.data?.data?.coinsAwarded ?? 5} Coins</p>
+            <p className="text-xs text-muted">Keep going and continue your roadmap progression.</p>
           </div>
         </motion.div>
       )}

@@ -19,6 +19,7 @@ class BaseAIProvider {
   async generateTestPaper(config) { throw new Error('Not implemented'); }
   async generateInterviewQuestions(config) { throw new Error('Not implemented'); }
   async evaluateAnswer(question, answer, type) { throw new Error('Not implemented'); }
+  async evaluateInterview(transcript, role, interviewType, company) { throw new Error('Not implemented'); }
   async analyzeResume(resumeText, jobDescription) { throw new Error('Not implemented'); }
   async reviewCode(code, language) { throw new Error('Not implemented'); }
   async chat(messages, systemContext) { throw new Error('Not implemented'); }
@@ -389,6 +390,23 @@ Return ONLY valid JSON.`;
     );
   }
 
+  async evaluateInterview(transcript, role, interviewType, company) {
+    const companyCtx = company ? ` at ${company}` : '';
+    const prompt = `Evaluate this ${interviewType} job interview for a ${role} position${companyCtx}.\n\nTranscript:\n${transcript}\n\nProvide detailed feedback as JSON matching exactly this structure:\n{\n  "overallScore": 75,\n  "technicalScore": 70,\n  "communicationScore": 80,\n  "confidenceScore": 75,\n  "structureScore": 65,\n  "strengthPoints": ["Strengths in C++...", "Good STAR structure..."],\n  "improvementPoints": ["Needs depth in SQL...", "Avoid talking too fast..."],\n  "suggestedResources": ["Study SQL Joins", "STAR method guide"],\n  "detailedFeedback": "Overall feedback summary...",\n  "questionWiseFeedback": [\n    {\n      "questionIndex": 0,\n      "score": 75,\n      "feedback": "Feedback for candidate\\'s answer...",\n      "idealAnswer": "How candidate should have structured the answer..."\n    }\n  ]\n}`;
+    return this._safeJsonGenerate(prompt, {
+      overallScore: 70,
+      technicalScore: 70,
+      communicationScore: 70,
+      confidenceScore: 70,
+      structureScore: 70,
+      strengthPoints: ['Clear communication'],
+      improvementPoints: ['Provide more technical depth'],
+      suggestedResources: ['Mock interviews practice'],
+      detailedFeedback: 'Good effort, focus on structured technical answers.',
+      questionWiseFeedback: []
+    });
+  }
+
   async analyzeResume(resumeText, jobDescription = '') {
     const jdCtx = jobDescription ? `\nJob Description: ${jobDescription}` : '';
     return this._safeJsonGenerate(
@@ -427,7 +445,11 @@ Return ONLY valid JSON.`;
     const { role = 'Software Engineer', interviewType = 'technical', company = '' } = sessionConfig;
     const companyCtx = company ? ` at ${company}` : '';
     const systemInstruction = `You are a professional ${interviewType} interviewer conducting an interview for a ${role} position${companyCtx}. Ask one question at a time. After each candidate response, provide brief feedback, then ask the next question or a follow-up. Be professional, thorough, and adaptive to their answers. Start by greeting and asking the first question.`;
-    return this.chat(messages.map(m => ({ ...m, sender: m.role === 'candidate' ? 'user' : 'assistant' })), systemInstruction);
+    const formatted = messages.map(m => ({
+      sender: m.role === 'candidate' ? 'user' : 'assistant',
+      content: m.content
+    }));
+    return this.chat(formatted, systemInstruction);
   }
 }
 
@@ -631,6 +653,24 @@ Return ONLY valid JSON.`;
     return result;
   }
 
+  async evaluateInterview(transcript, role, interviewType, company) {
+    const companyCtx = company ? ` at ${company}` : '';
+    const systemPrompt = `You are an expert interviewer and evaluator conducting performance reviews for job candidates. Provide detailed feedback.`;
+    const userPrompt = `Evaluate this ${interviewType} job interview for a ${role} position${companyCtx}.\n\nTranscript:\n${transcript}\n\nProvide detailed feedback as JSON matching exactly this structure:\n{\n  "overallScore": 75,\n  "technicalScore": 70,\n  "communicationScore": 80,\n  "confidenceScore": 75,\n  "structureScore": 65,\n  "strengthPoints": ["Strengths in C++...", "Good STAR structure..."],\n  "improvementPoints": ["Needs depth in SQL...", "Avoid talking too fast..."],\n  "suggestedResources": ["Study SQL Joins", "STAR method guide"],\n  "detailedFeedback": "Overall feedback summary...",\n  "questionWiseFeedback": [\n    {\n      "questionIndex": 0,\n      "score": 75,\n      "feedback": "Feedback for candidate\\'s answer...",\n      "idealAnswer": "How candidate should have structured the answer..."\n    }\n  ]\n}`;
+    return this._jsonComplete(systemPrompt, userPrompt, this.smartModel, {
+      overallScore: 70,
+      technicalScore: 70,
+      communicationScore: 70,
+      confidenceScore: 70,
+      structureScore: 70,
+      strengthPoints: ['Clear communication'],
+      improvementPoints: ['Provide more technical depth'],
+      suggestedResources: ['Mock interviews practice'],
+      detailedFeedback: 'Good effort, focus on structured technical answers.',
+      questionWiseFeedback: []
+    });
+  }
+
   async analyzeResume(resumeText, jobDescription = '') {
     const jdCtx = jobDescription ? `\nTarget Job Description:\n${jobDescription}` : '';
     const result = await this._jsonComplete(
@@ -747,6 +787,10 @@ class AIService {
 
   async evaluateAnswer(question, answer, type, provider) {
     return this._getProvider('evaluate', provider).evaluateAnswer(question, answer, type);
+  }
+
+  async evaluateInterview(transcript, role, interviewType, company, provider) {
+    return this._getProvider('evaluate', provider).evaluateInterview(transcript, role, interviewType, company);
   }
 
   async analyzeResume(resumeText, jobDescription, provider) {
