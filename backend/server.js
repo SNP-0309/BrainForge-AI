@@ -48,6 +48,18 @@ app.use(compression());
 // Swagger Docs Endpoint
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Health check endpoint (no auth required)
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'OK',
+    uptime: Math.floor(process.uptime()),
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+  });
+});
+
 // API routes v1
 app.use('/api/v1', apiRoutes);
 

@@ -42,10 +42,18 @@ const generateProjectIdeasSchema = z.object({
   }),
 });
 
+const generateBugHuntSchema = z.object({
+  body: z.object({
+    count: z.number().int().min(1).max(10).optional().default(5),
+    aiProvider: z.enum(['gemini', 'groq']).optional(),
+  }),
+});
+
 module.exports = {
   tutorChatSchema,
   generateNotesSchema,
   reviewCodeSchema,
   generateFlashcardsSchema,
   generateProjectIdeasSchema,
+  generateBugHuntSchema,
 };

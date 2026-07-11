@@ -7,6 +7,7 @@ const {
   reviewCodeSchema,
   generateFlashcardsSchema,
   generateProjectIdeasSchema,
+  generateBugHuntSchema,
 } = require('../validators/ai.validator');
 const {
   chatTutor,
@@ -14,6 +15,7 @@ const {
   reviewCode,
   generateFlashcards,
   generateProjectIdeas,
+  generateBugHuntChallenges,
   getWeakTopics,
 } = require('../controllers/ai.controller');
 
@@ -26,6 +28,7 @@ router.post('/notes/generate', validate(generateNotesSchema), generateNotes);
 router.post('/review/code', validate(reviewCodeSchema), reviewCode);
 router.post('/flashcards/generate', validate(generateFlashcardsSchema), generateFlashcards);
 router.post('/projects/generate', validate(generateProjectIdeasSchema), generateProjectIdeas);
+router.post('/bughunt/generate', validate(generateBugHuntSchema), generateBugHuntChallenges);
 router.get('/weak-topics', getWeakTopics);
 
 module.exports = router;
