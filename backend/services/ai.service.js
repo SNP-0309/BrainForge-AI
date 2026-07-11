@@ -874,6 +874,64 @@ Return ONLY valid JSON.`;
     const result = await this._complete(formattedMessages, this.smartModel);
     return result || 'Let me think of the next question...';
   }
+
+  async generateBugHuntChallenges(count = 5) {
+    const MOCK_CHALLENGES = [
+      { id: 'g1', title: 'Off-By-One Error', language: 'JavaScript', description: 'This loop should print 1 through 10. Find the bug.', lines: [{ code: 'function printNums() {', buggy: false }, { code: '  for (let i = 1; i <= 9; i++) {', buggy: true }, { code: '    console.log(i);', buggy: false }, { code: '  }', buggy: false }, { code: '}', buggy: false }], explanation: 'The condition should be `i <= 10`, not `i <= 9`. Classic off-by-one error.', fixedLine: '  for (let i = 1; i <= 10; i++) {' },
+      { id: 'g2', title: 'Wrong Array Method', language: 'JavaScript', description: 'This should return the sum of all numbers.', lines: [{ code: 'function sumArr(arr) {', buggy: false }, { code: '  return arr.filter((a, b) => a + b, 0);', buggy: true }, { code: '}', buggy: false }], explanation: '`filter` is wrong here — it should be `reduce` to accumulate a sum.', fixedLine: '  return arr.reduce((a, b) => a + b, 0);' },
+      { id: 'g3', title: 'Missing Return', language: 'Python', description: 'Should return the square of a number.', lines: [{ code: 'def square(n):', buggy: false }, { code: '    result = n * n', buggy: false }, { code: '    print(result)', buggy: true }], explanation: '`print(result)` should be `return result`. Function prints but does not return.', fixedLine: '    return result' },
+      { id: 'g4', title: 'Comparison vs Assignment', language: 'JavaScript', description: 'Should check if x equals 10.', lines: [{ code: 'let x = 5;', buggy: false }, { code: 'if (x = 10) {', buggy: true }, { code: '  console.log("x is 10");', buggy: false }, { code: '}', buggy: false }], explanation: '`x = 10` is assignment, not comparison. Should be `x === 10`.', fixedLine: 'if (x === 10) {' },
+      { id: 'g5', title: 'Wrong Factorial Step', language: 'JavaScript', description: 'Should compute the factorial of n.', lines: [{ code: 'function factorial(n) {', buggy: false }, { code: '  if (n <= 1) return 1;', buggy: false }, { code: '  return n * factorial(n - 2);', buggy: true }, { code: '}', buggy: false }], explanation: '`n - 2` should be `n - 1`. Skipping steps causes wrong results.', fixedLine: '  return n * factorial(n - 1);' },
+    ];
+
+    if (this.isMock) {
+      return MOCK_CHALLENGES.slice(0, count);
+    }
+
+    try {
+      const prompt = `Generate exactly ${count} code bug-hunt challenges for a programming quiz. Each challenge has a code snippet with exactly ONE bug planted in ONE specific line.
+
+Return a valid JSON array (no markdown) in this exact format:
+[
+  {
+    "id": "b1",
+    "title": "Short Bug Name",
+    "language": "JavaScript" or "Python",
+    "description": "What the code should do (1 sentence)",
+    "lines": [
+      { "code": "line of code here", "buggy": false },
+      { "code": "the BUGGY line here", "buggy": true },
+      { "code": "more code", "buggy": false }
+    ],
+    "explanation": "Why this line is buggy and what the fix is",
+    "fixedLine": "the corrected line of code"
+  }
+]
+
+Rules:
+- Each snippet should be 3-7 lines of real, runnable code
+- Bugs should be realistic: off-by-one, wrong operator, typo, wrong method, missing return, etc.
+- Mix JavaScript and Python
+- Exactly ONE line should have "buggy": true per challenge
+- Return ONLY the JSON array, nothing else`;
+
+      const formattedMessages = [
+        { role: 'system', content: 'You are an expert programming teacher. Generate realistic code bug challenges in valid JSON only.' },
+        { role: 'user', content: prompt },
+      ];
+
+      const raw = await this._complete(formattedMessages, this.smartModel);
+      const jsonStr = raw.replace(/```json?\n?/gi, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(jsonStr);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.slice(0, count);
+      }
+      return MOCK_CHALLENGES.slice(0, count);
+    } catch (err) {
+      logger.warn(`Bug hunt generation failed, using fallback: ${err.message}`);
+      return MOCK_CHALLENGES.slice(0, count);
+    }
+  }
 }
 
 // ─────────────────────────────────────────────
