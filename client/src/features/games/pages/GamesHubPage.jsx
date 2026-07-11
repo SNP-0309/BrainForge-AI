@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Brain, Gamepad2, Sparkles, BookOpen, Star, HelpCircle, Trophy, RefreshCw, ChevronRight } from 'lucide-react';
+import { Brain, Gamepad2, Sparkles, BookOpen, HelpCircle, RefreshCw, ChevronRight, Bug, Clock, Zap } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import { useToastStore } from '../../../store/toastStore';
-import { useAuthStore } from '../../../store/authStore';
 import api from '../../../config/api';
 
 const DEFAULT_TOPICS = [
@@ -19,13 +18,12 @@ const DEFAULT_TOPICS = [
 ];
 
 export default function GamesHubPage() {
-  const [activeTab, setActiveTab] = useState('quiz'); // 'quiz' | 'memory'
+  const [activeTab, setActiveTab] = useState('quiz'); // 'quiz' | 'bughunt'
   const [topic, setTopic] = useState('');
   const [difficulty, setDifficulty] = useState('intermediate');
   const [questionCount, setQuestionCount] = useState(5);
   const [aiProvider, setAiProvider] = useState('groq');
   const [loading, setLoading] = useState(false);
-  const { user } = useAuthStore();
   const showToast = useToastStore((state) => state.showToast);
   const navigate = useNavigate();
 
@@ -52,8 +50,8 @@ export default function GamesHubPage() {
     }
   };
 
-  const handleStartMemoryMatch = (selectedTopic) => {
-    navigate(`/games/memory-match?topic=${encodeURIComponent(selectedTopic)}`);
+  const handleStartBugHunt = () => {
+    navigate('/games/bug-hunt');
   };
 
   return (
@@ -73,7 +71,6 @@ export default function GamesHubPage() {
             Practice, reinforce core concepts, and level up your skills through interactive games and quizzes.
           </p>
         </div>
-
       </div>
 
       {/* Tabs selector */}
@@ -89,14 +86,14 @@ export default function GamesHubPage() {
           AI Quiz Arena
         </button>
         <button
-          onClick={() => setActiveTab('memory')}
-          className={`px-5 py-2 font-black text-sm uppercase transition-all rounded-xl border-2 border-black ${
-            activeTab === 'memory'
+          onClick={() => setActiveTab('bughunt')}
+          className={`px-5 py-2 font-black text-sm uppercase transition-all rounded-xl border-2 border-black flex items-center gap-2 ${
+            activeTab === 'bughunt'
               ? 'bg-brutal-pink text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] -translate-x-0.5 -translate-y-0.5'
               : 'bg-white text-black/75 hover:bg-black/5'
           }`}
         >
-          Concept Memory Match
+          <Bug className="w-4 h-4" /> Bug Hunt
         </button>
       </div>
 
@@ -115,7 +112,7 @@ export default function GamesHubPage() {
                   <h2 className="text-xl font-black uppercase text-black flex items-center gap-1.5">
                     Generate New Quiz <Sparkles className="w-4 h-4 text-amber-500" />
                   </h2>
-                  <p className="text-xs font-bold text-black/60">Customize a custom quiz on any topic. Our AI generates unique questions tailored for you.</p>
+                  <p className="text-xs font-bold text-black/60">Customize a quiz on any topic. Our AI generates unique questions tailored for you.</p>
                 </div>
               </div>
 
@@ -206,41 +203,56 @@ export default function GamesHubPage() {
               </form>
             </Card>
           ) : (
+            /* Bug Hunt Tab */
             <Card bg="#FFFFFF" className="p-6 space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-brutal-pink border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
-                  <Gamepad2 className="w-5 h-5 text-black" />
+                  <Bug className="w-5 h-5 text-black" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black uppercase text-black">Concept Memory Match</h2>
-                  <p className="text-xs font-bold text-black/60">Select a deck, match the tech terms with definitions in as few attempts as possible, and improve recall.</p>
+                  <h2 className="text-xl font-black uppercase text-black">🐛 Bug Hunt Challenge</h2>
+                  <p className="text-xs font-bold text-black/60">Find the bug hiding in real code snippets. Click the buggy line before the timer runs out!</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {DEFAULT_TOPICS.map((t) => (
-                  <Card 
-                    key={t}
-                    hover
-                    onClick={() => handleStartMemoryMatch(t)}
-                    className="cursor-pointer border-2 border-black hover:-translate-x-0.5 hover:-translate-y-0.5 p-4 flex flex-col justify-between min-h-[140px]"
-                  >
-                    <div>
-                      <span className="bg-brutal-purple border border-black text-[9px] font-mono font-black px-2 py-0.5 rounded shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] uppercase">
-                        DECK
-                      </span>
-                      <h4 className="text-sm font-black uppercase text-black mt-2 leading-snug">{t}</h4>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mt-4">
-                      <span className="text-[10px] font-bold text-black/65">12 cards matching</span>
-                      <Button size="sm" variant="secondary" className="px-3.5 py-1 text-xs">
-                        Play Deck
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
+              {/* Game preview card */}
+              <div className="rounded-xl border-[3px] border-black overflow-hidden shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                <div className="bg-black px-4 py-2 flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                  <span className="ml-3 text-[10px] font-mono text-white/50 font-bold">code.js — preview</span>
+                </div>
+                <div className="bg-[#1a1a2e] font-mono text-sm px-4 py-3 space-y-1">
+                  <div className="flex gap-3 text-[#a9c5e8]"><span className="text-white/30 w-4 text-right">1</span><span>function findSum(arr) {'{'}</span></div>
+                  <div className="flex gap-3 bg-red-600/25 border-l-4 border-red-500 -mx-4 px-4 text-red-300 line-through"><span className="text-white/30 w-4 text-right">2</span><span>{'  return arr.filter((a,b) => a + b, 0);'}</span></div>
+                  <div className="flex gap-3 text-[#a9c5e8]"><span className="text-white/30 w-4 text-right">3</span><span>{'}'}</span></div>
+                </div>
               </div>
+
+              {/* Scoring info */}
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="bg-brutal-green/20 border-2 border-black rounded-xl p-3 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                  <p className="text-[9px] font-mono font-black text-black/50 uppercase">Correct</p>
+                  <p className="text-base font-black text-black">+10 pts</p>
+                </div>
+                <div className="bg-brutal-pink/20 border-2 border-black rounded-xl p-3 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                  <p className="text-[9px] font-mono font-black text-black/50 uppercase">Wrong</p>
+                  <p className="text-base font-black text-black">−3 pts</p>
+                </div>
+                <div className="bg-brutal-yellow/40 border-2 border-black rounded-xl p-3 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                  <p className="text-[9px] font-mono font-black text-black/50 uppercase">Timer</p>
+                  <p className="text-base font-black text-black">30s</p>
+                </div>
+              </div>
+
+              <Button
+                onClick={handleStartBugHunt}
+                bg="#FFAED7"
+                className="w-full justify-center py-3.5 flex items-center gap-2"
+              >
+                <Bug className="w-5 h-5" /> Start Bug Hunt <ChevronRight className="w-4 h-4" />
+              </Button>
             </Card>
           )}
         </div>
@@ -256,8 +268,21 @@ export default function GamesHubPage() {
             <ul className="text-xs font-bold space-y-2.5 list-disc list-inside leading-relaxed text-black/85">
               <li>Reinforce concept retention and recall after completing lessons.</li>
               <li>A passing score (70% or more) validates your learning completion.</li>
-              <li>Practice quizzes daily to build long-term memory match patterns.</li>
-              <li>All topic quizzes are generated dynamically by AI for infinite practice.</li>
+              <li>Bug Hunt sharpens your ability to read and debug real code.</li>
+              <li>All quizzes are generated dynamically by AI for infinite practice.</li>
+            </ul>
+          </Card>
+
+          {/* Bug Hunt Tips */}
+          <Card bg="#FFFDF6" className="p-5 space-y-3">
+            <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
+              <Bug className="w-5 h-5 text-black" /> Bug Hunt Tips
+            </h3>
+            <ul className="text-xs font-bold leading-relaxed text-black/75 space-y-2">
+              <li>🔍 Read the description carefully — it tells you what the code <em>should</em> do.</li>
+              <li>⏱ Act fast — you only have <strong>30 seconds</strong> per challenge.</li>
+              <li>🎯 Look for typos, wrong operators, and logic errors first.</li>
+              <li>📚 Each bug comes with a detailed explanation after you answer.</li>
             </ul>
           </Card>
 
@@ -267,7 +292,7 @@ export default function GamesHubPage() {
               <HelpCircle className="w-5 h-5 text-black" /> Pro Tip
             </h3>
             <p className="text-xs font-bold leading-relaxed text-black/75">
-              Struggling with a concept on your learning roadmap? Go to the <strong>Roadmaps</strong> page, select that specific node, click study details, and practice questions here will match that module instantly!
+              Struggling with a concept on your learning roadmap? Go to the <strong>Roadmaps</strong> page, select that module, and use the AI Quiz tool to generate questions matching that topic instantly!
             </p>
           </Card>
         </div>

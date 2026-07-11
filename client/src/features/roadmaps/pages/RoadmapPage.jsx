@@ -6,9 +6,10 @@ import Card from '../../../components/ui/Card';
 import { useAuthStore } from '../../../store/authStore';
 import { useToastStore } from '../../../store/toastStore';
 import { 
-  Award, BookOpen, CheckCircle, ChevronRight, Compass, HelpCircle, Lock, 
-  PlayCircle, ExternalLink, RefreshCw, X, Sparkles, Star, Globe, 
-  Brain, FileText, LayoutGrid, Zap, HelpCircle as QuizIcon
+  Award, BookOpen, CheckCircle, ChevronRight, Compass, Lock, 
+  PlayCircle, RefreshCw, X, Sparkles, 
+  Brain, FileText, LayoutGrid, Zap, HelpCircle as QuizIcon,
+  Map, Trophy, Target, Star
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { COURSES } from '../../../data/courses.data';
@@ -33,6 +34,34 @@ const matchCategory = (label) => {
   if (clean.includes('machine learning') || clean.includes('ml')) return 'Machine Learning';
   if (clean.includes('dsa') || clean.includes('data structure') || clean.includes('algorithm')) return 'Data Structures & Algorithms';
   return null;
+};
+
+// Node status style config
+const nodeConfig = {
+  completed: {
+    circleColor: 'bg-brutal-green',
+    cardBg: 'bg-white',
+    badge: 'COMPLETED',
+    badgeBg: 'bg-brutal-green',
+    Icon: CheckCircle,
+    shadow: 'shadow-[3px_3px_0px_0px_rgba(74,222,128,0.5)]',
+  },
+  available: {
+    circleColor: 'bg-brutal-yellow',
+    cardBg: 'bg-white',
+    badge: 'IN PROGRESS',
+    badgeBg: 'bg-brutal-yellow',
+    Icon: PlayCircle,
+    shadow: 'shadow-brutal',
+  },
+  locked: {
+    circleColor: 'bg-white',
+    cardBg: 'bg-black/5',
+    badge: 'LOCKED',
+    badgeBg: 'bg-white/30',
+    Icon: Lock,
+    shadow: '',
+  },
 };
 
 export default function RoadmapPage() {
@@ -61,7 +90,6 @@ export default function RoadmapPage() {
       const res = await api.get('/roadmaps');
       setRoadmaps(res.data.data);
       if (res.data.data.length > 0) {
-        // Pick active roadmap matching user chosen career path, else first one
         const active = res.data.data.find(r => r.title.includes(user.profile.chosenCareerPath)) || res.data.data[0];
         setActiveRoadmap(active);
       }
@@ -81,21 +109,18 @@ export default function RoadmapPage() {
     setCompletingNodeId(nodeId);
     try {
       const res = await api.put(`/roadmaps/${activeRoadmap._id}/node/${nodeId}`, { status: 'completed' });
-      const { roadmap, xpAwarded } = res.data.data;
+      const { roadmap } = res.data.data;
       
-      // Update local state
       setActiveRoadmap(roadmap);
       setRoadmaps(roadmaps.map(r => r._id === roadmap._id ? roadmap : r));
       
-      // Find updated node
       const updatedNode = roadmap.nodes.find(n => n.id === nodeId);
       if (selectedNode && selectedNode.id === nodeId) {
         setSelectedNode(updatedNode);
       }
 
-      showToast(`Module marked completed! Unlocked post-module AI study tools.`, 'success');
+      showToast(`✅ Module marked completed! AI study tools unlocked.`, 'success');
       
-      // Sync user profile state (refresh data)
       const userRes = await api.get('/users/me');
       setUser(userRes.data.data);
     } catch (err) {
@@ -178,9 +203,15 @@ export default function RoadmapPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="font-mono font-bold text-black">Loading Roadmaps...</span>
+      <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4 bg-brutal-cream">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
+          className="mb-4"
+        >
+          <Map className="w-10 h-10 text-black" />
+        </motion.div>
+        <span className="font-mono font-bold text-black text-sm uppercase tracking-wider">Building your roadmap...</span>
       </div>
     );
   }
@@ -202,11 +233,13 @@ export default function RoadmapPage() {
     );
   }
 
-  // Calculate completion percentage
+  // Calculate stats
   const completedNodesCount = activeRoadmap.nodes.filter(n => n.status === 'completed').length;
-  const progressPercent = activeRoadmap.nodes.length > 0 
-    ? Math.round((completedNodesCount / activeRoadmap.nodes.length) * 100) 
+  const totalNodes = activeRoadmap.nodes.length;
+  const progressPercent = totalNodes > 0 
+    ? Math.round((completedNodesCount / totalNodes) * 100) 
     : 0;
+  const availableCount = activeRoadmap.nodes.filter(n => n.status === 'available').length;
 
   // Filter curated courses for active drawer node
   const matchedCategory = matchCategory(selectedNode?.label || '');
@@ -221,94 +254,132 @@ export default function RoadmapPage() {
     <div className="min-h-[calc(100vh-80px)] bg-brutal-cream py-10 px-4 relative text-black">
       <div className="max-w-4xl mx-auto">
         
-        {/* Roadmap Title Card */}
-        <Card bg="#FFFFFF" className="p-6 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <span className="bg-brutal-pink text-black border-2 border-black px-2.5 py-0.5 text-xs font-black rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide">
-              Active Path
-            </span>
-            <h1 className="text-2xl md:text-3xl font-black uppercase text-black mt-2">
-              {activeRoadmap.title}
-            </h1>
-            <p className="text-xs md:text-sm font-bold text-black/60 mt-1">
-              {activeRoadmap.description}
-            </p>
-          </div>
-          
-          <div className="w-full md:w-44 shrink-0">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-mono font-black text-black">PROGRESS</span>
-              <span className="text-xs font-mono font-black text-black">{progressPercent}%</span>
+        {/* ── Header Card ─────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+        >
+          <Card bg="#FFFFFF" className="p-6 mb-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <span className="bg-brutal-pink text-black border-2 border-black px-2.5 py-0.5 text-xs font-black rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide">
+                    Active Path
+                  </span>
+                  <span className="bg-brutal-yellow text-black border-2 border-black px-2.5 py-0.5 text-xs font-black rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide">
+                    {completedNodesCount}/{totalNodes} Done
+                  </span>
+                  {progressPercent === 100 && (
+                    <span className="bg-brutal-green text-black border-2 border-black px-2.5 py-0.5 text-xs font-black rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide flex items-center gap-1">
+                      <Trophy className="w-3 h-3" /> Completed!
+                    </span>
+                  )}
+                </div>
+                <h1 className="text-2xl md:text-3xl font-black uppercase text-black mt-1">
+                  {activeRoadmap.title}
+                </h1>
+                <p className="text-xs md:text-sm font-bold text-black/60 mt-1">
+                  {activeRoadmap.description}
+                </p>
+              </div>
+              
+              {/* Stats + Progress */}
+              <div className="w-full md:w-52 shrink-0 space-y-3">
+                {/* Stat row */}
+                <div className="grid grid-cols-2 gap-2 text-center">
+                  <div className="bg-brutal-green/20 border-2 border-black rounded-xl p-2 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                    <p className="text-[9px] font-mono font-black text-black/50 uppercase">Done</p>
+                    <p className="text-lg font-black text-black">{completedNodesCount}</p>
+                  </div>
+                  <div className="bg-brutal-yellow/40 border-2 border-black rounded-xl p-2 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                    <p className="text-[9px] font-mono font-black text-black/50 uppercase">Active</p>
+                    <p className="text-lg font-black text-black">{availableCount}</p>
+                  </div>
+                </div>
+                {/* Progress bar */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs font-mono font-black text-black">PROGRESS</span>
+                    <span className="text-xs font-mono font-black text-black">{progressPercent}%</span>
+                  </div>
+                  <div className="w-full h-4 bg-white border-2 border-black rounded-md overflow-hidden relative shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <motion.div 
+                      className="h-full bg-brutal-green border-r-2 border-black"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPercent}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="w-full h-5 bg-white border-2 border-black rounded-md overflow-hidden relative shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <div 
-                className="h-full bg-brutal-green border-r-2 border-black transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </motion.div>
 
-        {/* Timeline Path Nodes */}
-        <div className="relative py-4 pl-8 md:pl-12">
+        {/* ── Timeline Nodes ───────────────────────────────────────────── */}
+        <div className="relative pl-10 md:pl-14">
           {/* Vertical rail */}
-          <div className="absolute left-12 md:left-16 top-0 bottom-0 w-1 bg-black border-r-2 border-black" />
+          <div className="absolute left-[20px] md:left-[26px] top-4 bottom-4 w-[3px] bg-black rounded-full" />
 
-          <div className="space-y-12">
-            {activeRoadmap.nodes.map((node) => {
-              const isCompleted = node.status === 'completed';
-              const isAvailable = node.status === 'available';
-              const isLocked = node.status === 'locked';
-
-              // Map style keys
-              let circleColor = 'bg-white';
-              let badgeText = 'LOCKED';
-              let Icon = Lock;
-
-              if (isCompleted) {
-                circleColor = 'bg-brutal-green';
-                badgeText = 'COMPLETED';
-                Icon = CheckCircle;
-              } else if (isAvailable) {
-                circleColor = 'bg-brutal-yellow';
-                badgeText = 'IN PROGRESS';
-                Icon = PlayCircle;
-              }
+          <div className="space-y-6">
+            {activeRoadmap.nodes.map((node, index) => {
+              const status = node.status === 'completed' ? 'completed' : node.status === 'available' ? 'available' : 'locked';
+              const cfg = nodeConfig[status];
+              const { Icon } = cfg;
+              const isLocked = status === 'locked';
 
               return (
-                <div key={node.id} className="relative flex items-center gap-6 md:gap-8 group">
-                  {/* Timeline bullet indicator */}
-                  <div className={`absolute left-0 w-8 h-8 rounded-full border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center shrink-0 z-10 ${circleColor}`}>
-                    <Icon className="w-4 h-4 text-black" />
+                <motion.div
+                  key={node.id}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.04 }}
+                  className="relative flex items-start gap-5 md:gap-7 group"
+                >
+                  {/* Step indicator */}
+                  <div className={`absolute -left-[7px] md:-left-[11px] w-9 h-9 rounded-full border-[3px] border-black flex items-center justify-center shrink-0 z-10 ${cfg.circleColor} shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
+                    {status === 'completed' ? (
+                      <CheckCircle className="w-4 h-4 text-black" />
+                    ) : status === 'available' ? (
+                      <span className="text-[11px] font-black">{index + 1}</span>
+                    ) : (
+                      <Lock className="w-3.5 h-3.5 text-black/60" />
+                    )}
                   </div>
 
-                  {/* Node content card */}
-                  <div className="flex-1 ml-6">
-                    <div 
+                  {/* Node Card */}
+                  <div className="flex-1 ml-2">
+                    <div
                       onClick={() => !isLocked && setSelectedNode(node)}
-                      className={`rounded-xl border-[3px] border-black p-5 transition-all flex items-center justify-between gap-4 select-none ${
-                        isLocked ? 'bg-black/5 opacity-60 cursor-not-allowed' : 'bg-white shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer'
+                      className={`rounded-xl border-[3px] border-black p-4 md:p-5 transition-all flex items-center justify-between gap-4 select-none ${
+                        isLocked
+                          ? 'bg-black/5 opacity-55 cursor-not-allowed'
+                          : `${cfg.cardBg} ${cfg.shadow} hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer`
                       }`}
                     >
-                      <div>
-                        <span className={`text-[10px] font-mono font-black border-2 border-black px-2 py-0.5 rounded shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] uppercase ${
-                          isCompleted ? 'bg-brutal-green' : isAvailable ? 'bg-brutal-yellow' : 'bg-white/20'
-                        }`}>
-                          {badgeText}
-                        </span>
-                        <h3 className="text-base md:text-lg font-black uppercase text-black mt-2.5">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className={`text-[10px] font-mono font-black border-2 border-black px-2 py-0.5 rounded shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] uppercase ${cfg.badgeBg}`}>
+                            {cfg.badge}
+                          </span>
+                          <span className="text-[10px] font-mono font-black text-black/40 uppercase">
+                            Step {index + 1}
+                          </span>
+                        </div>
+                        <h3 className="text-base md:text-lg font-black uppercase text-black leading-tight truncate">
                           {node.label}
                         </h3>
                       </div>
                       
                       {!isLocked && (
-                        <div className="w-8 h-8 rounded-lg bg-brutal-cream border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-brutal-cream border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 group-hover:bg-brutal-yellow transition-colors">
                           <ChevronRight className="w-4 h-4" />
                         </div>
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -316,7 +387,7 @@ export default function RoadmapPage() {
 
       </div>
 
-      {/* Slide Drawer Detail Overlay */}
+      {/* ── Slide Drawer Detail Overlay ─────────────────────────────────── */}
       <AnimatePresence>
         {selectedNode && (
           <>
@@ -335,182 +406,196 @@ export default function RoadmapPage() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-lg bg-white border-l-[3px] border-black z-50 p-6 overflow-y-auto flex flex-col justify-between"
+              className="fixed right-0 top-0 bottom-0 w-full max-w-lg bg-white border-l-[3px] border-black z-50 overflow-y-auto flex flex-col"
             >
-              <div>
-                {/* Header */}
-                <div className="flex items-center justify-between pb-4 border-b-2 border-black/15 mb-6">
+              {/* Drawer Header */}
+              <div className="p-6 border-b-2 border-black/15 bg-brutal-cream sticky top-0 z-10">
+                <div className="flex items-start justify-between gap-4">
                   <div>
                     <span className="bg-brutal-yellow border-2 border-black px-2 py-0.5 rounded shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] font-mono text-xs font-black">
                       MODULE STUDY GUIDE
                     </span>
-                    <h2 className="text-xl md:text-2xl font-black uppercase text-black mt-2">
+                    <h2 className="text-xl md:text-2xl font-black uppercase text-black mt-2 leading-tight">
                       {selectedNode.label}
                     </h2>
                   </div>
                   <button 
                     onClick={() => setSelectedNode(null)}
-                    className="w-8 h-8 rounded-lg border-2 border-black bg-brutal-cream flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    className="w-8 h-8 rounded-lg border-2 border-black bg-white flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 hover:bg-brutal-pink transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-
-                {/* Recommendations info card */}
-                <div className="space-y-6">
-                  
-                  {/* Primary playlist resource */}
-                  <div>
-                    <h3 className="text-xs font-black uppercase text-black/50 tracking-wider mb-2">Recommended Free Course</h3>
-                    {primaryCourse ? (
-                      <div className="p-4 rounded-xl border-[3px] border-black bg-brutal-cream shadow-brutal flex items-start gap-4">
-                        <div className="w-24 shrink-0 aspect-video rounded-lg border-2 border-black bg-black overflow-hidden relative shadow-[2px_2px_0px_0px_#000]">
-                          <img 
-                            src={`https://img.youtube.com/vi/${primaryCourse.videoId}/mqdefault.jpg`} 
-                            alt={primaryCourse.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <span className="bg-[#FF0000] text-white border border-black px-1.5 py-0.2 text-[8px] font-black rounded uppercase font-mono shadow-[1px_1px_0px_0px_#000]">
-                            YouTube
-                          </span>
-                          <h4 className="font-extrabold text-sm text-black leading-tight mt-1.5">
-                            {primaryCourse.title}
-                          </h4>
-                          <span className="text-[10px] font-bold text-black/75 mt-1 block">
-                            Instructor: <strong className="text-black">{primaryCourse.instructor}</strong>
-                          </span>
-                          
-                          <div className="flex flex-wrap items-center gap-2 mt-3.5">
-                            <span className="bg-white border border-black px-1.5 py-0.2 text-[9px] font-bold rounded font-mono">
-                              {primaryCourse.duration}
-                            </span>
-                            <span className="bg-white border border-black px-1.5 py-0.2 text-[9px] font-bold rounded font-mono">
-                              {primaryCourse.language}
-                            </span>
-                            <span className="bg-white border border-black px-1.5 py-0.2 text-[9px] font-bold rounded font-mono">
-                              {primaryCourse.rating}★
-                            </span>
-                          </div>
-                          
-                          <a 
-                            href={primaryCourse.youtubeUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 bg-brutal-yellow border-2 border-black px-3 py-1 text-[10px] font-black uppercase rounded shadow-[1.5px_1.5px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all mt-4"
-                          >
-                            Start Learning <PlayCircle size={12} />
-                          </a>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="p-4 rounded-xl border-[3px] border-black bg-brutal-cream shadow-brutal text-center">
-                        <span className="text-xs font-bold text-black/60">No specific video course loaded. Use general study guides below.</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Alternative playlist options */}
-                  {alternativeCourses.length > 0 && (
-                    <div>
-                      <h3 className="text-xs font-black uppercase text-black/50 tracking-wider mb-2">Alternative Course Options</h3>
-                      <div className="space-y-2">
-                        {alternativeCourses.map(course => (
-                          <div key={course.id} className="p-3 rounded-lg border-2 border-black bg-white flex items-center justify-between gap-3 shadow-[2px_2px_0px_0px_#000]">
-                            <div className="min-w-0 flex-1">
-                              <h5 className="font-extrabold text-xs text-black truncate uppercase">{course.title}</h5>
-                              <p className="text-[10px] font-bold text-black/60 mt-0.5">Instructor: {course.instructor} • {course.duration}</p>
-                            </div>
-                            <a 
-                              href={course.youtubeUrl}
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="bg-white border-2 border-black px-2.5 py-1 text-[10px] font-black uppercase rounded shadow-[1.5px_1.5px_0px_0px_#000]"
-                            >
-                              Open
-                            </a>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Unlocked Post-Module AI tools - visible ONLY if completed */}
-                  {selectedNode.status === 'completed' ? (
-                    <div>
-                      <div className="bg-brutal-green/10 border-2 border-black p-3.5 rounded-xl shadow-[3px_3px_0px_0px_#000] mb-3 flex items-center gap-2">
-                        <Sparkles size={16} className="text-black" />
-                        <h4 className="text-xs font-black uppercase text-black">✓ Unlocked Post-Module AI Tools</h4>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          onClick={() => handleLoadSummary(selectedNode.label)}
-                          className="bg-[#E9D5FF] hover:bg-[#d6beed] border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] text-left transition-all"
-                        >
-                          <FileText size={18} />
-                          <span className="text-xs font-black uppercase text-black block mt-2">AI Summary</span>
-                          <span className="text-[9px] font-bold text-black/60 block mt-0.5">Custom study cheat sheet</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleGenerateQuiz(selectedNode.label)}
-                          className="bg-[#FFE600] hover:bg-[#eed400] border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] text-left transition-all"
-                        >
-                          <QuizIcon size={18} />
-                          <span className="text-xs font-black uppercase text-black block mt-2">AI Quiz</span>
-                          <span className="text-[9px] font-bold text-black/60 block mt-0.5">5 Interactive practice Qs</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleLoadFlashcards(selectedNode.label)}
-                          className="bg-[#FFAED7] hover:bg-[#fa93c6] border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] text-left transition-all"
-                        >
-                          <Brain size={18} />
-                          <span className="text-xs font-black uppercase text-black block mt-2">AI Flashcards</span>
-                          <span className="text-[9px] font-bold text-black/60 block mt-0.5">Spaced repetition review</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleLoadProjectIdeas(selectedNode.label)}
-                          className="bg-[#4ADE80] hover:bg-[#3bc471] border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] text-left transition-all"
-                        >
-                          <LayoutGrid size={18} />
-                          <span className="text-xs font-black uppercase text-black block mt-2">Mini Projects</span>
-                          <span className="text-[9px] font-bold text-black/60 block mt-0.5">3 Beginner project guides</span>
-                        </button>
-                      </div>
-
-                      {/* Interactive coding challenge trigger link */}
-                      <button
-                        onClick={() => navigate('/ai-tutor')}
-                        className="w-full bg-white hover:bg-brutal-cream/50 border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] mt-3 flex items-center justify-between text-left transition-all"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Zap size={14} />
-                          <div>
-                            <span className="text-xs font-black uppercase text-black block">Solve Coding Challenge</span>
-                            <span className="text-[9px] font-bold text-black/60 block">Practice doubt solving in AI Tutor console</span>
-                          </div>
-                        </div>
-                        <ChevronRight size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="bg-brutal-pink/15 border-2 border-black p-3.5 rounded-xl shadow-[2px_2px_0px_0px_#000] flex items-center gap-2.5">
-                      <Lock size={14} />
-                      <span className="text-xs font-black uppercase text-black">Complete module to unlock summary, quiz, flashcards & projects</span>
-                    </div>
-                  )}
-
-                </div>
               </div>
 
-              {/* Mark Completed Actions */}
-              <div className="pt-6 border-t-2 border-black/15 mt-6">
+              <div className="flex-1 p-6 space-y-6">
+
+                {/* Primary Course */}
+                <div>
+                  <h3 className="text-xs font-black uppercase text-black/50 tracking-wider mb-2">Recommended Free Course</h3>
+                  {primaryCourse ? (
+                    <div className="p-4 rounded-xl border-[3px] border-black bg-brutal-cream shadow-brutal flex items-start gap-4">
+                      <div className="w-24 shrink-0 aspect-video rounded-lg border-2 border-black bg-black overflow-hidden relative shadow-[2px_2px_0px_0px_#000]">
+                        <img 
+                          src={`https://img.youtube.com/vi/${primaryCourse.videoId}/mqdefault.jpg`} 
+                          alt={primaryCourse.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="bg-[#FF0000] text-white border border-black px-1.5 py-0.2 text-[8px] font-black rounded uppercase font-mono shadow-[1px_1px_0px_0px_#000]">
+                          YouTube
+                        </span>
+                        <h4 className="font-extrabold text-sm text-black leading-tight mt-1.5 line-clamp-2">
+                          {primaryCourse.title}
+                        </h4>
+                        <span className="text-[10px] font-bold text-black/75 mt-1 block">
+                          Instructor: <strong className="text-black">{primaryCourse.instructor}</strong>
+                        </span>
+                        
+                        <div className="flex flex-wrap items-center gap-2 mt-3">
+                          <span className="bg-white border border-black px-1.5 py-0.2 text-[9px] font-bold rounded font-mono">
+                            {primaryCourse.duration}
+                          </span>
+                          <span className="bg-white border border-black px-1.5 py-0.2 text-[9px] font-bold rounded font-mono">
+                            {primaryCourse.language}
+                          </span>
+                          <span className="bg-white border border-black px-1.5 py-0.2 text-[9px] font-bold rounded font-mono">
+                            {primaryCourse.rating}★
+                          </span>
+                        </div>
+                        
+                        <a 
+                          href={primaryCourse.youtubeUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 bg-brutal-yellow border-2 border-black px-3 py-1 text-[10px] font-black uppercase rounded shadow-[1.5px_1.5px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all mt-4"
+                        >
+                          Start Learning <PlayCircle size={12} />
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-xl border-[3px] border-black bg-brutal-cream shadow-brutal text-center">
+                      <span className="text-xs font-bold text-black/60">No specific video course loaded. Use AI tools below.</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Alternative Courses */}
+                {alternativeCourses.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-black uppercase text-black/50 tracking-wider mb-2">Alternative Course Options</h3>
+                    <div className="space-y-2">
+                      {alternativeCourses.map(course => (
+                        <div key={course.id} className="p-3 rounded-lg border-2 border-black bg-white flex items-center justify-between gap-3 shadow-[2px_2px_0px_0px_#000]">
+                          <div className="min-w-0 flex-1">
+                            <h5 className="font-extrabold text-xs text-black truncate uppercase">{course.title}</h5>
+                            <p className="text-[10px] font-bold text-black/60 mt-0.5">Instructor: {course.instructor} • {course.duration}</p>
+                          </div>
+                          <a 
+                            href={course.youtubeUrl}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-white border-2 border-black px-2.5 py-1 text-[10px] font-black uppercase rounded shadow-[1.5px_1.5px_0px_0px_#000] shrink-0"
+                          >
+                            Open
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── AI Tools Section ──────────────────────────────────── */}
                 {selectedNode.status === 'completed' ? (
-                  <div className="flex items-center gap-2 text-brutal-green justify-center font-bold text-sm bg-brutal-green/10 border-2 border-black p-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black font-black uppercase">
+                  <div>
+                    <div className="bg-brutal-green/15 border-2 border-black p-3.5 rounded-xl shadow-[3px_3px_0px_0px_#000] mb-4 flex items-center gap-2">
+                      <Sparkles size={16} className="text-black shrink-0" />
+                      <h4 className="text-xs font-black uppercase text-black">✓ Unlocked Post-Module AI Tools</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => handleLoadSummary(selectedNode.label)}
+                        className="bg-[#E9D5FF] hover:bg-[#d6beed] border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
+                      >
+                        <FileText size={18} />
+                        <span className="text-xs font-black uppercase text-black block mt-2">AI Summary</span>
+                        <span className="text-[9px] font-bold text-black/60 block mt-0.5">Custom study cheat sheet</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleGenerateQuiz(selectedNode.label)}
+                        className="bg-[#FFE600] hover:bg-[#eed400] border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
+                      >
+                        <QuizIcon size={18} />
+                        <span className="text-xs font-black uppercase text-black block mt-2">AI Quiz</span>
+                        <span className="text-[9px] font-bold text-black/60 block mt-0.5">5 Interactive practice Qs</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleLoadFlashcards(selectedNode.label)}
+                        className="bg-[#FFAED7] hover:bg-[#fa93c6] border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
+                      >
+                        <Brain size={18} />
+                        <span className="text-xs font-black uppercase text-black block mt-2">AI Flashcards</span>
+                        <span className="text-[9px] font-bold text-black/60 block mt-0.5">Spaced repetition review</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleLoadProjectIdeas(selectedNode.label)}
+                        className="bg-[#4ADE80] hover:bg-[#3bc471] border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
+                      >
+                        <LayoutGrid size={18} />
+                        <span className="text-xs font-black uppercase text-black block mt-2">Mini Projects</span>
+                        <span className="text-[9px] font-bold text-black/60 block mt-0.5">3 Beginner project guides</span>
+                      </button>
+                    </div>
+
+                    {/* Bug Hunt Challenge - new game */}
+                    <button
+                      onClick={() => navigate('/games/bug-hunt')}
+                      className="w-full bg-brutal-pink/20 hover:bg-brutal-pink/40 border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] mt-3 flex items-center justify-between text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Target size={14} className="text-black shrink-0" />
+                        <div>
+                          <span className="text-xs font-black uppercase text-black block">🐛 Bug Hunt Challenge</span>
+                          <span className="text-[9px] font-bold text-black/60 block">Find & fix bugs in real code snippets</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={14} />
+                    </button>
+
+                    {/* AI Tutor link */}
+                    <button
+                      onClick={() => navigate('/ai-tutor')}
+                      className="w-full bg-white hover:bg-brutal-cream/50 border-2 border-black p-3 rounded-xl shadow-[2.5px_2.5px_0px_0px_#000] mt-2 flex items-center justify-between text-left transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Zap size={14} />
+                        <div>
+                          <span className="text-xs font-black uppercase text-black block">Ask AI Tutor</span>
+                          <span className="text-[9px] font-bold text-black/60 block">Get instant doubt resolution</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-brutal-pink/15 border-2 border-black p-3.5 rounded-xl shadow-[2px_2px_0px_0px_#000] flex items-center gap-2.5">
+                    <Lock size={14} className="shrink-0" />
+                    <span className="text-xs font-black uppercase text-black">Complete module to unlock AI summary, quiz, flashcards & projects</span>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Drawer Footer - Mark Completed */}
+              <div className="p-6 border-t-2 border-black/15 bg-brutal-cream sticky bottom-0">
+                {selectedNode.status === 'completed' ? (
+                  <div className="flex items-center gap-2 justify-center font-bold text-sm bg-brutal-green/20 border-2 border-black p-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black font-black uppercase">
                     <CheckCircle className="w-5 h-5 text-green-700" /> Module Completed Successfully
                   </div>
                 ) : (
@@ -538,10 +623,10 @@ export default function RoadmapPage() {
         )}
       </AnimatePresence>
 
-      {/* AI Tools Overlay / Modal Dialog */}
+      {/* ── AI Tools Overlay / Modal Dialog ─────────────────────────────── */}
       <AnimatePresence>
         {activeOverlay && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
             {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }}
@@ -556,17 +641,17 @@ export default function RoadmapPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white border-[3px] border-black rounded-2xl shadow-brutal p-6 overflow-hidden max-h-[85vh] flex flex-col justify-between"
+              className="relative w-full max-w-2xl bg-white border-[3px] border-black rounded-2xl shadow-brutal p-6 overflow-hidden max-h-[85vh] flex flex-col"
             >
               {/* Modal Header */}
               <div className="flex items-center justify-between pb-4 border-b-2 border-black/15 mb-4 shrink-0">
                 <div className="flex items-center gap-2">
                   <Sparkles size={18} className="text-black" />
-                  <h3 className="text-lg font-black uppercase text-black">{overlayTitle}</h3>
+                  <h3 className="text-base font-black uppercase text-black leading-tight pr-4">{overlayTitle}</h3>
                 </div>
                 <button
                   onClick={() => setActiveOverlay(null)}
-                  className="w-8 h-8 rounded-lg border-2 border-black bg-brutal-cream flex items-center justify-center shadow-[1.5px_1.5px_0px_0px_#000]"
+                  className="w-8 h-8 rounded-lg border-2 border-black bg-brutal-cream flex items-center justify-center shadow-[1.5px_1.5px_0px_0px_#000] shrink-0 hover:bg-brutal-pink transition-colors"
                 >
                   <X size={16} />
                 </button>

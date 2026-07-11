@@ -17,6 +17,7 @@ import AiTutorPage from '../features/ai-tutor/pages/AiTutorPage'
 import QuizPage from '../features/games/pages/QuizPage'
 import GamesHubPage from '../features/games/pages/GamesHubPage'
 import MemoryMatchPage from '../features/games/pages/MemoryMatchPage'
+import BugHuntPage from '../features/games/pages/BugHuntPage'
 import ProfilePage from '../features/profile/pages/ProfilePage'
 import InterviewPrepPage from '../features/interviews/pages/InterviewPrepPage'
 import TeacherDashboardPage from '../features/teacher/pages/TeacherDashboardPage'
@@ -65,6 +66,7 @@ export default function AppRoutes() {
         <Route path="/games" element={<GamesHubPage />} />
         <Route path="/games/quiz/:id" element={<QuizPage />} />
         <Route path="/games/memory-match" element={<MemoryMatchPage />} />
+        <Route path="/games/bug-hunt" element={<BugHuntPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/interview-prep" element={<InterviewPrepPage />} />
 
