@@ -582,6 +582,53 @@ Your primary task is to actively listen, judge, and respond to the candidate's a
     }));
     return this.chat(formatted, systemInstruction);
   }
+
+  async generateBugHuntChallenges(count = 5) {
+    const MOCK_CHALLENGES = [
+      { id: 'g1', title: 'Off-By-One Error', language: 'JavaScript', description: 'This loop should print 1 through 10.', lines: [{ code: 'function printNums() {', buggy: false }, { code: '  for (let i = 1; i <= 9; i++) {', buggy: true }, { code: '    console.log(i);', buggy: false }, { code: '  }', buggy: false }, { code: '}', buggy: false }], explanation: 'Condition should be `i <= 10`. Classic off-by-one.', fixedLine: '  for (let i = 1; i <= 10; i++) {' },
+      { id: 'g2', title: 'Wrong Array Method', language: 'JavaScript', description: 'Should return the sum of all numbers.', lines: [{ code: 'function sumArr(arr) {', buggy: false }, { code: '  return arr.filter((a, b) => a + b, 0);', buggy: true }, { code: '}', buggy: false }], explanation: '`filter` should be `reduce` to accumulate a sum.', fixedLine: '  return arr.reduce((a, b) => a + b, 0);' },
+      { id: 'g3', title: 'Missing Return', language: 'Python', description: 'Should return the square of a number.', lines: [{ code: 'def square(n):', buggy: false }, { code: '    result = n * n', buggy: false }, { code: '    print(result)', buggy: true }], explanation: '`print` should be `return`. The function prints instead of returning.', fixedLine: '    return result' },
+    ];
+
+    if (this.isMock) return MOCK_CHALLENGES.slice(0, count);
+
+    try {
+      const prompt = `Generate exactly ${count} code bug-hunt challenges. Each has a code snippet with ONE bug in ONE specific line.
+
+Return a valid JSON array (no markdown) in this exact format:
+[
+  {
+    "id": "b1",
+    "title": "Short Bug Name",
+    "language": "JavaScript",
+    "description": "What the code should do (1 sentence)",
+    "lines": [
+      { "code": "line of code", "buggy": false },
+      { "code": "the BUGGY line", "buggy": true },
+      { "code": "more code", "buggy": false }
+    ],
+    "explanation": "Why this line is buggy and what the fix is",
+    "fixedLine": "the corrected line of code"
+  }
+]
+
+Rules:
+- 3-7 lines of real runnable code each
+- Realistic bugs: off-by-one, wrong operator, typo, wrong method, missing return
+- Mix JavaScript and Python
+- Exactly ONE buggy: true line per challenge
+- Return ONLY the JSON array`;
+
+      const result = await this.generateContent(prompt, 'You are an expert programming teacher generating realistic code bugs as JSON only.');
+      const jsonStr = result.replace(/```json?\n?/gi, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(jsonStr);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed.slice(0, count);
+      return MOCK_CHALLENGES.slice(0, count);
+    } catch (err) {
+      logger.warn(`Gemini bug hunt failed, using fallback: ${err.message}`);
+      return MOCK_CHALLENGES.slice(0, count);
+    }
+  }
 }
 
 // ─────────────────────────────────────────────

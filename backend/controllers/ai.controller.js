@@ -126,6 +126,16 @@ Return the response in clean Markdown with clear headings.`;
   }
 };
 
+const generateBugHuntChallenges = async (req, res, next) => {
+  try {
+    const { count = 5, aiProvider } = req.body;
+    const challenges = await aiService.generateBugHuntChallenges(Number(count), aiProvider);
+    sendResponse(res, 200, 'Bug hunt challenges generated successfully', { challenges });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getWeakTopics = async (req, res, next) => {
   try {
     // Find quiz attempts for the logged in user
@@ -173,5 +183,6 @@ module.exports = {
   reviewCode,
   generateFlashcards,
   generateProjectIdeas,
+  generateBugHuntChallenges,
   getWeakTopics,
 };
