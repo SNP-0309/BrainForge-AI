@@ -484,17 +484,12 @@ Return ONLY valid JSON.`;
     }
     const { role = 'SDE', interviewType = 'technical', count = 10, company = '' } = config;
     const companyCtx = company ? ` for ${company}` : '';
-    return this._safeJsonGenerate(
+    const mockQs = getMockQuestions(role, interviewType);
+    const result = await this._safeJsonGenerate(
       `Generate ${count} ${interviewType} interview questions for a ${role} role${companyCtx}. Return JSON array: [{"question":"...","category":"${interviewType}","difficulty":"medium","sampleAnswer":"...","followUpQuestions":["..."],"tips":"..."}]`,
-      Array.from({ length: count }, (_, i) => ({
-        question: `Mock ${interviewType} question ${i + 1} for ${role}`,
-        category: interviewType,
-        difficulty: 'medium',
-        sampleAnswer: 'Mock sample answer.',
-        followUpQuestions: ['Can you elaborate?'],
-        tips: 'Use the STAR method.',
-      }))
+      mockQs
     );
+    return Array.isArray(result) && result.length > 0 ? result : mockQs;
   }
 
   async evaluateAnswer(question, answer, type = 'descriptive') {
@@ -772,13 +767,14 @@ Return ONLY valid JSON.`;
     }
     const { role = 'SDE', interviewType = 'technical', count = 10, company = '' } = config;
     const companyCtx = company ? ` (company: ${company})` : '';
+    const mockQs = getMockQuestions(role, interviewType);
     const result = await this._jsonComplete(
       'You are an expert technical interviewer at a top tech company.',
       `Generate ${count} ${interviewType} interview questions for ${role}${companyCtx}. JSON array: [{"question":"...","category":"${interviewType}","difficulty":"easy|medium|hard","sampleAnswer":"...","followUpQuestions":["..."],"tips":"..."}]`,
       this.smartModel,
-      []
+      mockQs
     );
-    return Array.isArray(result) ? result : [];
+    return Array.isArray(result) && result.length > 0 ? result : mockQs;
   }
 
   async evaluateAnswer(question, answer, type = 'descriptive') {

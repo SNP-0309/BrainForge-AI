@@ -15,11 +15,12 @@ const verifyFirebaseToken = async (req, res, next) => {
       return next(new UnauthorizedError('Please log in to access this resource'));
     }
 
-    // Support mock verification in test mode only to allow automated CI/CD tests to pass
+    // Support mock verification in test and development modes
     const isTestMode = process.env.NODE_ENV === 'test';
+    const isDevMode = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
     const isMockToken = token === 'mock' || token.startsWith('mock-');
 
-    if (isMockToken && isTestMode) {
+    if (isMockToken && (isTestMode || isDevMode)) {
       logger.warn('Mock token detected in test mode. Using fallback mock verification.');
       
       let uid = 'mock-uid-123';
