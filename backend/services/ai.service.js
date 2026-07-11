@@ -24,6 +24,7 @@ class BaseAIProvider {
   async reviewCode(code, language) { throw new Error('Not implemented'); }
   async chat(messages, systemContext) { throw new Error('Not implemented'); }
   async interviewChat(messages, sessionConfig) { throw new Error('Not implemented'); }
+  async generateBugHuntChallenges(count) { throw new Error('Not implemented'); }
 }
 
 // ─────────────────────────────────────────────
@@ -961,6 +962,10 @@ class AIService {
 
   async interviewChat(messages, sessionConfig, provider) {
     return this._getProvider('interview', provider).interviewChat(messages, sessionConfig);
+  }
+
+  async generateBugHuntChallenges(count, provider) {
+    return this._getProvider('code', provider).generateBugHuntChallenges(count);
   }
 
   getAvailableProviders() {
