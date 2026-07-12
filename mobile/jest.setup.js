@@ -7,10 +7,6 @@ jest.mock('react-native-reanimated', () => {
   return Reanimated;
 });
 
-// Silence warning animations
-jest.mock('react-native/Libraries/Animated/Paragraph', () => 'Paragraph');
-jest.mock('react-native/Libraries/Animated/useNativeDriver', () => true);
-
 // Mock @react-native-async-storage/async-storage
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
