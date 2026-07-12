@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -10,7 +11,18 @@ import 'screens/profile_screen.dart';
 import 'screens/games_screen.dart';
 import 'screens/ai_tutor_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: 'AIzaSyCcEE0FVuTCS8JgqLbFaDhXoCqsUusWpOg',
+      authDomain: 'brain-forge-38ec2.firebaseapp.com',
+      projectId: 'brain-forge-38ec2',
+      storageBucket: 'brain-forge-38ec2.firebasestorage.app',
+      messagingSenderId: '430453640129',
+      appId: '1:430453640129:web:738ec7177ef7fdd3653d40',
+    ),
+  );
   runApp(
     const ProviderScope(
       child: AiCareerGuidanceApp(),

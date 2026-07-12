@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/api_client.dart';
@@ -37,6 +39,8 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   AuthNotifier() : super(AuthState(isLoading: true)) {
     initialize();
   }
@@ -47,7 +51,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final token = prefs.getString('auth_token');
       final userJson = prefs.getString('auth_user');
 
-      if (token != null && userJson != null) {
+      // Try to restore Firebase session
+      final firebaseUser = _firebaseAuth.currentUser;
+      if (firebaseUser != null && token != null && userJson != null) {
         final userMap = jsonDecode(userJson);
         final user = UserModel.fromJson(userMap);
         state = AuthState(
@@ -64,33 +70,47 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> login(String email) async {
+  /// Syncs Firebase token with the backend and stores the user
+  Future<void> _syncWithBackend(User firebaseUser) async {
+    // Get the Firebase ID token to send to our backend
+    final idToken = await firebaseUser.getIdToken();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', idToken!);
+
+    final response = await ApiClient.post('/auth/sync', {});
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final body = jsonDecode(response.body);
+      final userData = body['data']['user'];
+      final user = UserModel.fromJson(userData);
+
+      await prefs.setString('auth_user', jsonEncode(userData));
+      state = AuthState(
+        user: user,
+        token: idToken,
+        isAuthenticated: true,
+        isLoading: false,
+      );
+    } else {
+      final body = jsonDecode(response.body);
+      throw Exception(body['message'] ?? 'Backend sync failed');
+    }
+  }
+
+  Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final username = email.split('@')[0];
-      const role = 'student';
-      final mockToken = 'mock-$role-$username';
-
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await _syncWithBackend(credential.user!);
+    } on FirebaseAuthException catch (e) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', mockToken);
-
-      final response = await ApiClient.post('/auth/sync', {});
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final body = jsonDecode(response.body);
-        final userData = body['data']['user'];
-        final user = UserModel.fromJson(userData);
-
-        await prefs.setString('auth_user', jsonEncode(userData));
-        state = AuthState(
-          user: user,
-          token: mockToken,
-          isAuthenticated: true,
-          isLoading: false,
-        );
-      } else {
-        final body = jsonDecode(response.body);
-        throw Exception(body['message'] ?? 'Authentication failed');
-      }
+      await prefs.remove('auth_token');
+      final message = _firebaseErrorMessage(e.code);
+      state = AuthState(isLoading: false, error: message);
+      throw Exception(message);
     } catch (e) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('auth_token');
@@ -99,43 +119,65 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> register(String name, String email) async {
+  Future<void> loginWithGoogle() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final username = email.split('@')[0];
-      const role = 'student';
-      final mockToken = 'mock-$role-$username';
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', mockToken);
-
-      final response = await ApiClient.post('/auth/sync', {});
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final body = jsonDecode(response.body);
-        var userData = body['data']['user'];
-        var user = UserModel.fromJson(userData);
-
-        // Update name if customized
-        if (name.isNotEmpty && name != user.name) {
-          final updateResponse = await ApiClient.put('/users/me', {'name': name});
-          if (updateResponse.statusCode == 200) {
-            final updateBody = jsonDecode(updateResponse.body);
-            userData = updateBody['data'];
-            user = UserModel.fromJson(userData);
-          }
-        }
-
-        await prefs.setString('auth_user', jsonEncode(userData));
-        state = AuthState(
-          user: user,
-          token: mockToken,
-          isAuthenticated: true,
-          isLoading: false,
-        );
+      UserCredential credential;
+      if (kIsWeb) {
+        final provider = GoogleAuthProvider();
+        credential = await _firebaseAuth.signInWithPopup(provider);
       } else {
-        final body = jsonDecode(response.body);
-        throw Exception(body['message'] ?? 'Registration failed');
+        final provider = GoogleAuthProvider();
+        credential = await _firebaseAuth.signInWithProvider(provider);
       }
+      await _syncWithBackend(credential.user!);
+    } on FirebaseAuthException catch (e) {
+      final message = _firebaseErrorMessage(e.code);
+      state = AuthState(isLoading: false, error: message);
+      throw Exception(message);
+    } catch (e) {
+      state = AuthState(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+      rethrow;
+    }
+  }
+
+  Future<void> loginWithGithub() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final provider = GithubAuthProvider();
+      UserCredential credential;
+      if (kIsWeb) {
+        credential = await _firebaseAuth.signInWithPopup(provider);
+      } else {
+        credential = await _firebaseAuth.signInWithProvider(provider);
+      }
+      await _syncWithBackend(credential.user!);
+    } on FirebaseAuthException catch (e) {
+      final message = _firebaseErrorMessage(e.code);
+      state = AuthState(isLoading: false, error: message);
+      throw Exception(message);
+    } catch (e) {
+      state = AuthState(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+      rethrow;
+    }
+  }
+
+  Future<void> register(String name, String email, String password) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      // Set display name in Firebase
+      await credential.user!.updateDisplayName(name);
+      await _syncWithBackend(credential.user!);
+    } on FirebaseAuthException catch (e) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('auth_token');
+      final message = _firebaseErrorMessage(e.code);
+      state = AuthState(isLoading: false, error: message);
+      throw Exception(message);
     } catch (e) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('auth_token');
@@ -146,6 +188,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     state = state.copyWith(isLoading: true);
+    await _firebaseAuth.signOut();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
     await prefs.remove('auth_user');
@@ -156,6 +199,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('auth_user', jsonEncode(user.toJson()));
     state = state.copyWith(user: user);
+  }
+
+  String _firebaseErrorMessage(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'No account found with this email.';
+      case 'wrong-password':
+        return 'Incorrect password. Please try again.';
+      case 'email-already-in-use':
+        return 'An account with this email already exists.';
+      case 'weak-password':
+        return 'Password must be at least 6 characters.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      case 'network-request-failed':
+        return 'Network error. Check your connection.';
+      default:
+        return 'Authentication failed. Please try again.';
+    }
   }
 }
 
