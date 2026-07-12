@@ -22,7 +22,7 @@ const chatTutor = async (req, res, next) => {
       chat = await AIChat.create({
         user: req.user._id,
         provider: aiProvider || 'gemini',
-        model: aiProvider === 'groq' ? 'llama3-8b-8192' : 'gemini-1.5-flash',
+        model: aiProvider === 'groq' ? 'llama-3.1-8b-instant' : 'gemini-2.5-flash',
         messages: [],
       });
     }

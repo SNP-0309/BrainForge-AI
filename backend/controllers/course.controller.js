@@ -242,6 +242,17 @@ const completeLesson = async (req, res, next) => {
   }
 };
 
+const scraperService = require('../services/scraper.service');
+
+const syncCourses = async (req, res, next) => {
+  try {
+    const result = await scraperService.runCourseSync();
+    sendResponse(res, 200, 'Courses and lessons synchronized successfully via scrapers', result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getCourses,
   createCourse,
@@ -252,4 +263,5 @@ module.exports = {
   createLesson,
   getLessonById,
   completeLesson,
+  syncCourses,
 };

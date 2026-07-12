@@ -7,6 +7,7 @@ const {
   deleteCourse,
   getCourseLessons,
   createLesson,
+  syncCourses,
 } = require('../controllers/course.controller');
 const { protect, restrictTo } = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
@@ -16,6 +17,8 @@ const { createLessonSchema } = require('../validators/lesson.validator');
 const router = express.Router();
 
 router.use(protect);
+
+router.post('/sync', restrictTo('admin'), syncCourses);
 
 router.route('/')
   .get(getCourses)

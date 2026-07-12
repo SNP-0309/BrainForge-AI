@@ -322,7 +322,7 @@ class GeminiProvider extends BaseAIProvider {
   constructor() {
     super('gemini');
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || !apiKey.startsWith('AIzaSy')) {
+    if (!apiKey || apiKey.trim().length < 10) {
       logger.warn('GEMINI_API_KEY is missing or invalid. Gemini will run in mock mode.');
       this.isMock = true;
     } else {
@@ -331,15 +331,27 @@ class GeminiProvider extends BaseAIProvider {
     }
   }
 
-  async _jsonModel() {
-    return this.genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+  async _jsonModel(systemInstruction) {
+    const config = {
+      model: 'gemini-2.5-flash',
       generationConfig: { responseMimeType: 'application/json' },
-    });
+    };
+    if (systemInstruction) {
+      config.systemInstruction = typeof systemInstruction === 'string'
+        ? { parts: [{ text: systemInstruction }] }
+        : systemInstruction;
+    }
+    return this.genAI.getGenerativeModel(config);
   }
 
-  async _textModel() {
-    return this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  async _textModel(systemInstruction) {
+    const config = { model: 'gemini-2.5-flash' };
+    if (systemInstruction) {
+      config.systemInstruction = typeof systemInstruction === 'string'
+        ? { parts: [{ text: systemInstruction }] }
+        : systemInstruction;
+    }
+    return this.genAI.getGenerativeModel(config);
   }
 
   async _safeJsonGenerate(prompt, fallback) {
@@ -538,14 +550,23 @@ Return ONLY valid JSON.`;
   async chat(messages, systemContext = '') {
     if (this.isMock) return `[Mock Gemini]: You asked: "${messages[messages.length - 1]?.content}". This is a mock AI response.`;
     try {
-      const model = await this._textModel();
       const systemInstruction = systemContext || 'You are AI Career Guidance, a world-class educational guide and tutor. Help students understand concepts clearly, recommend the best learning resources and channels, use examples, and maintain an encouraging teaching tone.';
-      const history = messages.slice(0, -1).map(m => ({
+      const model = await this._textModel(systemInstruction);
+      let history = messages.slice(0, -1).map(m => ({
         role: m.sender === 'user' ? 'user' : 'model',
         parts: [{ text: m.content }],
       }));
+      
+      // First content in history must be with role 'user'
+      const firstUserIdx = history.findIndex(h => h.role === 'user');
+      if (firstUserIdx !== -1) {
+        history = history.slice(firstUserIdx);
+      } else {
+        history = [];
+      }
+
       const lastMsg = messages[messages.length - 1].content;
-      const chat = model.startChat({ history, systemInstruction });
+      const chat = model.startChat({ history });
       const result = await chat.sendMessage(lastMsg);
       return result.response.text();
     } catch (err) {
@@ -619,9 +640,7 @@ Rules:
 - Exactly ONE buggy: true line per challenge
 - Return ONLY the JSON array`;
 
-      const result = await this.generateContent(prompt, 'You are an expert programming teacher generating realistic code bugs as JSON only.');
-      const jsonStr = result.replace(/```json?\n?/gi, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(jsonStr);
+      const parsed = await this._safeJsonGenerate(prompt, MOCK_CHALLENGES.slice(0, count));
       if (Array.isArray(parsed) && parsed.length > 0) return parsed.slice(0, count);
       return MOCK_CHALLENGES.slice(0, count);
     } catch (err) {
