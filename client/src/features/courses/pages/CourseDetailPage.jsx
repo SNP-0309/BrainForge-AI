@@ -41,6 +41,12 @@ export default function CourseDetailPage() {
     queryFn: () => api.get(`/courses/${id}`).then(r => r.data.data),
   })
 
+  const { data: lessons, isLoading: isLoadingLessons } = useQuery({
+    queryKey: ['courseLessons', id],
+    queryFn: () => api.get(`/courses/${id}/lessons`).then(r => r.data.data),
+    enabled: !!course,
+  })
+
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto space-y-6 py-6">
@@ -118,34 +124,73 @@ export default function CourseDetailPage() {
 
             {/* Price Segment */}
             <div className="bg-white border-[3px] border-black p-5 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-full md:w-60 shrink-0 text-center space-y-4">
-              <div>
-                <span className="text-[10px] font-mono font-black text-black/50 block">SPECIAL OFFER</span>
-                <div className="flex items-center justify-center gap-1.5 mt-1">
-                  <span className="text-xs font-bold text-black/55 line-through font-mono">
-                    ₹{originalPrice.toLocaleString('en-IN')}
-                  </span>
-                  <div className="text-2xl font-black text-black flex items-center font-mono">
-                    ₹{course.price?.toLocaleString('en-IN')}
+              {course.isPaid ? (
+                <>
+                  <div>
+                    <span className="text-[10px] font-mono font-black text-black/50 block">SPECIAL OFFER</span>
+                    <div className="flex items-center justify-center gap-1.5 mt-1">
+                      <span className="text-xs font-bold text-black/55 line-through font-mono">
+                        ₹{originalPrice.toLocaleString('en-IN')}
+                      </span>
+                      <div className="text-2xl font-black text-black flex items-center font-mono">
+                        ₹{course.price?.toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-green-700 bg-green-100 border border-green-500 px-2 py-0.5 rounded mt-1.5 inline-block">
+                      SAVE 45% OFF Today
+                    </span>
                   </div>
-                </div>
-                <span className="text-[10px] font-bold text-green-700 bg-green-100 border border-green-500 px-2 py-0.5 rounded mt-1.5 inline-block">
-                  SAVE 45% OFF Today
-                </span>
-              </div>
 
-              <a 
-                href={course.buyUrl || 'https://www.udemy.com'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <Button 
-                  className="w-full py-3 flex items-center justify-center gap-1.5 text-xs font-black uppercase"
-                  bg="#4ADE80"
-                >
-                  Buy Course <ExternalLink size={14} />
-                </Button>
-              </a>
+                  <a 
+                    href={course.buyUrl || 'https://www.udemy.com'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button 
+                      className="w-full py-3 flex items-center justify-center gap-1.5 text-xs font-black uppercase"
+                      bg="#4ADE80"
+                    >
+                      Buy Course <ExternalLink size={14} />
+                    </Button>
+                  </a>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <span className="text-[10px] font-mono font-black text-black/50 block">ACCESS</span>
+                    <div className="text-2xl font-black text-black flex items-center justify-center font-mono mt-1">
+                      FREE
+                    </div>
+                    <span className="text-[10px] font-bold text-green-700 bg-green-100 border border-green-500 px-2 py-0.5 rounded mt-1.5 inline-block font-mono">
+                      YOUTUBE COURSE
+                    </span>
+                  </div>
+
+                  {lessons && lessons.length > 0 ? (
+                    <Button 
+                      onClick={() => navigate(`/lessons/${lessons[0]._id}`)}
+                      className="w-full py-3 flex items-center justify-center gap-1.5 text-xs font-black uppercase"
+                      bg="#4ADE80"
+                    >
+                      Start Learning
+                    </Button>
+                  ) : (
+                    <Button 
+                      loading={isLoadingLessons}
+                      className="w-full py-3 flex items-center justify-center gap-1.5 text-xs font-black uppercase"
+                      bg="#4ADE80"
+                      onClick={() => {
+                        if (course.buyUrl) {
+                          window.open(course.buyUrl, '_blank', 'noopener,noreferrer');
+                        }
+                      }}
+                    >
+                      Watch Tutorial <ExternalLink size={14} />
+                    </Button>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </Card>
@@ -179,24 +224,52 @@ export default function CourseDetailPage() {
               <BookOpen size={18} className="text-brutal-purple" /> Course Curriculum Outline
             </h2>
             
-            <div className="space-y-3">
-              <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-brutal-cream/20">
-                <span className="text-xs font-black uppercase text-black">Section 1: Course Setup & Fundamentals</span>
-                <span className="text-[10px] font-mono font-bold text-black/60">3 lectures • 45m</span>
+            {course.isPaid ? (
+              <div className="space-y-3">
+                <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-brutal-cream/20">
+                  <span className="text-xs font-black uppercase text-black">Section 1: Course Setup & Fundamentals</span>
+                  <span className="text-[10px] font-mono font-bold text-black/60">3 lectures • 45m</span>
+                </div>
+                <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-brutal-cream/20">
+                  <span className="text-xs font-black uppercase text-black">Section 2: Hands-on Concepts & Code Walkthroughs</span>
+                  <span className="text-[10px] font-mono font-bold text-black/60">12 lectures • 2.5h</span>
+                </div>
+                <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-brutal-cream/20">
+                  <span className="text-xs font-black uppercase text-black">Section 3: Core Capstone Project Milestone</span>
+                  <span className="text-[10px] font-mono font-bold text-black/60">2 lectures • 1.5h</span>
+                </div>
+                <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-brutal-cream/20">
+                  <span className="text-xs font-black uppercase text-black">Section 4: Performance Optimizations & Deployment</span>
+                  <span className="text-[10px] font-mono font-bold text-black/60">4 lectures • 1h</span>
+                </div>
               </div>
-              <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-brutal-cream/20">
-                <span className="text-xs font-black uppercase text-black">Section 2: Hands-on Concepts & Code Walkthroughs</span>
-                <span className="text-[10px] font-mono font-bold text-black/60">12 lectures • 2.5h</span>
+            ) : isLoadingLessons ? (
+              <div className="space-y-3">
+                <SkeletonLoader className="h-12" count={3} />
               </div>
-              <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-brutal-cream/20">
-                <span className="text-xs font-black uppercase text-black">Section 3: Core Capstone Project Milestone</span>
-                <span className="text-[10px] font-mono font-bold text-black/60">2 lectures • 1.5h</span>
+            ) : lessons && lessons.length > 0 ? (
+              <div className="space-y-3">
+                {lessons.map((lesson, idx) => (
+                  <div 
+                    key={lesson._id} 
+                    onClick={() => navigate(`/lessons/${lesson._id}`)}
+                    className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-white hover:bg-brutal-cream/20 cursor-pointer transition-all hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_0px_#000]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="bg-brutal-purple border border-black w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black font-mono">
+                        {idx + 1}
+                      </span>
+                      <span className="text-xs font-black uppercase text-black line-clamp-1">{lesson.title}</span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-black/60 shrink-0 ml-4">{lesson.estimatedTime}m</span>
+                  </div>
+                ))}
               </div>
-              <div className="border-2 border-black p-3.5 rounded-lg flex items-center justify-between shadow-[2px_2px_0px_0px_#000] bg-brutal-cream/20">
-                <span className="text-xs font-black uppercase text-black">Section 4: Performance Optimizations & Deployment</span>
-                <span className="text-[10px] font-mono font-bold text-black/60">4 lectures • 1h</span>
+            ) : (
+              <div className="text-xs font-bold text-black/50 py-4 text-center">
+                No lessons found for this course.
               </div>
-            </div>
+            )}
           </Card>
         </div>
 
@@ -230,3 +303,4 @@ export default function CourseDetailPage() {
     </div>
   );
 }
+

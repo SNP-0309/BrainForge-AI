@@ -7,6 +7,13 @@ import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import SkeletonLoader from '../../../components/ui/SkeletonLoader'
 
+function getYouTubeId(url) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
 export default function LessonPlayerPage() {
   const { id } = useParams()
   const queryClient = useQueryClient()
@@ -30,6 +37,8 @@ export default function LessonPlayerPage() {
     </div>
   )
 
+  const youtubeId = getYouTubeId(lesson?.videoUrl)
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
@@ -46,6 +55,24 @@ export default function LessonPlayerPage() {
           {lesson?.isAiGenerated && <span className="text-xs text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded-full">✦ AI Generated</span>}
         </div>
       </motion.div>
+
+      {/* Video Player */}
+      {youtubeId && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} 
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+          className="w-full border-[3px] border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-black"
+        >
+          <iframe
+            className="w-full aspect-video"
+            src={`https://www.youtube.com/embed/${youtubeId}?rel=0`}
+            title={lesson?.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </motion.div>
+      )}
 
       {/* Lesson Content */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>

@@ -123,12 +123,57 @@ const deleteCourse = async (req, res, next) => {
 // Lesson Endpoints
 const getCourseLessons = async (req, res, next) => {
   try {
-    const lessons = await Lesson.find({ course: req.params.id }).sort('order');
+    const courseId = req.params.id;
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return next(new NotFoundError('Course not found'));
+    }
+
+    let lessons = await Lesson.find({ course: courseId }).sort('order');
+
+    // On-demand enrichment for free courses with only 1 (or 0) lessons
+    if (!course.isPaid && lessons.length <= 1 && process.env.SERPAPI_KEY) {
+      const logger = require('../utils/logger');
+      logger.info(`On-demand enriching free course "${course.title}" with lessons from YouTube via SerpAPI...`);
+      const { scrapeYouTubeVideosForCourse } = require('../services/scraper.service');
+      const youtubeVideos = await scrapeYouTubeVideosForCourse(course.title);
+
+      if (youtubeVideos && youtubeVideos.length > 0) {
+        // Clear old baseline lessons
+        await Lesson.deleteMany({ course: courseId });
+
+        let order = 1;
+        const newLessons = [];
+        for (const video of youtubeVideos) {
+          const l = await Lesson.create({
+            course: courseId,
+            title: video.title,
+            content: `In this lesson, we will watch: **${video.title}**.\n\n${video.description}\n\nWatch the full video, take notes, and complete practice challenges.`,
+            videoUrl: video.videoUrl,
+            order: order++,
+            estimatedTime: video.duration,
+            isAiGenerated: false
+          });
+          newLessons.push(l);
+        }
+
+        // Calculate and update total duration of the course
+        const totalMinutes = youtubeVideos.reduce((acc, v) => acc + v.duration, 0);
+        const durationHours = Math.ceil(totalMinutes / 60);
+        course.duration = durationHours;
+        await course.save();
+
+        lessons = newLessons;
+        logger.info(`On-demand enrichment complete for course "${course.title}". Added ${youtubeVideos.length} lessons.`);
+      }
+    }
+
     sendResponse(res, 200, 'Lessons retrieved successfully', lessons);
   } catch (error) {
     next(error);
   }
 };
+
 
 const createLesson = async (req, res, next) => {
   try {
