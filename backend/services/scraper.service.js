@@ -184,6 +184,58 @@ async function scrapeSerpApiCourses(query = 'MERN Stack course') {
   }
 }
 
+// Scrape related YouTube videos for free courses using SerpAPI's YouTube search engine
+async function scrapeYouTubeVideosForCourse(query) {
+  const apiKey = process.env.SERPAPI_KEY;
+  if (!apiKey) {
+    logger.warn('SERPAPI_KEY is not defined. Skipping YouTube video search.');
+    return [];
+  }
+  
+  try {
+    logger.info(`Fetching YouTube videos from SerpAPI for query: "${query}"`);
+    const searchUrl = `https://serpapi.com/search.json?engine=youtube&search_query=${encodeURIComponent(query)}&api_key=${apiKey}`;
+    
+    const response = await fetch(searchUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP status ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const results = data.video_results || [];
+    const videos = [];
+    
+    for (const res of results) {
+      if (!res.title || !res.link) continue;
+      
+      // Parse video duration (e.g. "12:34" or "1:02:45")
+      let durationMinutes = 15;
+      if (res.length) {
+        const parts = res.length.split(':').map(Number);
+        if (parts.length === 2 && !parts.some(isNaN)) {
+          durationMinutes = parts[0] + parts[1] / 60;
+        } else if (parts.length === 3 && !parts.some(isNaN)) {
+          durationMinutes = parts[0] * 60 + parts[1] + parts[2] / 60;
+        }
+      }
+      
+      videos.push({
+        title: res.title,
+        videoUrl: res.link,
+        thumbnail: res.thumbnail?.static || '',
+        description: res.description || `Learn about ${res.title} in this free tutorial video.`,
+        duration: Math.round(durationMinutes) || 15
+      });
+    }
+    
+    logger.info(`Successfully scraped ${videos.length} YouTube videos for query "${query}".`);
+    return videos;
+  } catch (err) {
+    logger.error(`SerpAPI YouTube search failed for "${query}": ${err.message}`);
+    return [];
+  }
+}
+
 // Run full course sync to populate MongoDB
 async function runCourseSync() {
   try {
@@ -224,6 +276,8 @@ async function runCourseSync() {
     
     let createdCount = 0;
     let updatedCount = 0;
+    let serpApiCallCount = 0;
+    const maxSerpApiCalls = 5; // self-throttling limit to preserve SerpAPI credits
     
     for (const cData of allCourses) {
       const filter = { title: cData.title, platform: cData.platform };
@@ -243,8 +297,45 @@ async function runCourseSync() {
         updatedCount++;
       }
       
-      // Ensure at least one lesson exists for this course
-      const lessonCount = await Lesson.countDocuments({ course: course._id });
+      // Check existing lessons count for this course
+      let lessonCount = await Lesson.countDocuments({ course: course._id });
+      
+      // If it's a free course, and lacks proper lessons (<=1 lesson), enrich it with multiple videos from YouTube
+      if (!course.isPaid) {
+        if (lessonCount <= 1 && serpApiCallCount < maxSerpApiCalls && process.env.SERPAPI_KEY) {
+          logger.info(`Enriching free course "${course.title}" with more videos via SerpAPI YouTube Search...`);
+          const youtubeVideos = await scrapeYouTubeVideosForCourse(course.title);
+          
+          if (youtubeVideos.length > 0) {
+            // Delete existing lessons to replace with enriched list
+            await Lesson.deleteMany({ course: course._id });
+            
+            let order = 1;
+            for (const video of youtubeVideos) {
+              await Lesson.create({
+                course: course._id,
+                title: video.title,
+                content: `In this lesson, we will watch: **${video.title}**.\n\n${video.description}\n\nWatch the full video, take notes, and complete practice challenges.`,
+                videoUrl: video.videoUrl,
+                order: order++,
+                estimatedTime: video.duration,
+                isAiGenerated: false
+              });
+            }
+            
+            // Calculate total duration in hours and update the course
+            const totalMinutes = youtubeVideos.reduce((acc, v) => acc + v.duration, 0);
+            const durationHours = Math.ceil(totalMinutes / 60);
+            await Course.findByIdAndUpdate(course._id, { duration: durationHours });
+            
+            lessonCount = youtubeVideos.length;
+            serpApiCallCount++;
+            logger.info(`Enriched course "${course.title}" with ${youtubeVideos.length} YouTube lessons.`);
+          }
+        }
+      }
+      
+      // Fallback: Ensure at least one lesson exists for this course if no lessons were created
       if (lessonCount === 0) {
         if (!course.isPaid && cData.buyUrl) {
           await Lesson.create({
@@ -287,5 +378,6 @@ module.exports = {
   scrapeCodeWithHarryPaid,
   importLocalFreeCourses,
   scrapeSerpApiCourses,
+  scrapeYouTubeVideosForCourse,
   runCourseSync
 };
