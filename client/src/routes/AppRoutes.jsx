@@ -75,7 +75,14 @@ export default function AppRoutes() {
         <Route path="/admin/dashboard" element={<RoleRoute allowedRoles={['admin']}><AdminDashboardPage /></RoleRoute>} />
       </Route>
 
+      {/* Friendly Redirect Aliases */}
+      <Route path="/roadmap" element={<Navigate to="/roadmaps" replace />} />
+      <Route path="/quiz" element={<Navigate to="/games" replace />} />
+      <Route path="/leaderboard" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/free-courses" element={<Navigate to="/courses/recommended" replace />} />
+
       <Route path="*" element={<NotFoundPage />} />
+
     </Routes>
   )
 }
