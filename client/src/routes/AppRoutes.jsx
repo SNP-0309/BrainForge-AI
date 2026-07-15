@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import MainLayout from '../components/layouts/MainLayout'
+import LoadingScreen from '../components/ui/LoadingScreen'
 
 // Pages
 import LoginPage from '../features/auth/pages/LoginPage'
@@ -27,7 +28,7 @@ import LandingPage from '../components/pages/LandingPage'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuthStore()
-  if (loading) return <div className="flex items-center justify-center h-screen bg-background"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
+  if (loading) return <LoadingScreen />
   return user ? children : <Navigate to="/login" replace />
 }
 
@@ -39,7 +40,7 @@ const PublicRoute = ({ children }) => {
 
 const RoleRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuthStore()
-  if (loading) return <div className="flex items-center justify-center h-screen bg-background"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
+  if (loading) return <LoadingScreen />
   if (!user) return <Navigate to="/login" replace />
   return allowedRoles.includes(user.role) ? children : <Navigate to="/dashboard" replace />
 }
